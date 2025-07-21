@@ -1,5 +1,5 @@
 # Instar
-
+Project manager notion: https://www.notion.so/Instar-2378407b6502808c8cbed8fe61c408e1?source=copy_link
 # 📸 Dự Án Clone Instagram – Spring Boot RESTful API + ReactJS
 
 ## **Mục tiêu dự án**
