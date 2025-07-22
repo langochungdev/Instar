@@ -1,23 +1,22 @@
 package com.instar.entity;
-
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Notifications")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "Notifications")
 public class Notification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    private User userId;
 
     @Column(nullable = false, length = 50)
     private String type;

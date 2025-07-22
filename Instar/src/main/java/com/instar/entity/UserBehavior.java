@@ -1,25 +1,24 @@
 package com.instar.entity;
-
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "User_Behaviors")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Entity
+@Table(name = "userBehaviors")
 public class UserBehavior {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    private User userId;
 
-    @Column(nullable = false, length = 50)
+    @Column(length = 50)
     private String action;
 
     @Column(nullable = false)

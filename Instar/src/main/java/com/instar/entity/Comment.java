@@ -1,27 +1,26 @@
 package com.instar.entity;
-
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Comments")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "Comments")
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
-    private Post post;
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    private Post postId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    private User userId;
 
     @Column(nullable = false, length = 255)
     private String content;
@@ -29,7 +28,7 @@ public class Comment {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_id")
-    private Comment parent;
+    @ManyToOne
+    @JoinColumn
+    private Comment parentId;
 }

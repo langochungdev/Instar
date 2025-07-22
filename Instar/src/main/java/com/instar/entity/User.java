@@ -1,16 +1,14 @@
 package com.instar.entity;
-
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
-@Entity
-@Table(name = "Users")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Entity
+@Table(name = "Users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

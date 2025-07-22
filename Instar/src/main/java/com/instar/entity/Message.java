@@ -1,27 +1,26 @@
 package com.instar.entity;
-
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Messages")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "Messages")
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "sender_id", nullable = false)
-    private User sender;
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    private User senderId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "receiver_id", nullable = false)
-    private User receiver;
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    private User receiverId;
 
     @Column(length = 500)
     private String content;

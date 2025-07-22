@@ -1,130 +1,128 @@
 CREATE DATABASE instar;
-GO
+--GO
 USE instar;
-GO
+--GO
 
--- Bảng Users
-CREATE TABLE Users (
+-- Bảng users
+CREATE TABLE users (
     id INT IDENTITY PRIMARY KEY,
     username NVARCHAR(50) UNIQUE NOT NULL,
     email NVARCHAR(100) UNIQUE NOT NULL,
     password NVARCHAR(100) NOT NULL,
-    fullname NVARCHAR(100) NOT NULL,
-    avatar_url NVARCHAR(255) NULL,
+    fullName NVARCHAR(100) NOT NULL,
+    avatarUrl NVARCHAR(255) NULL,
     bio NVARCHAR(255) NULL,
-    created_at DATETIME NOT NULL DEFAULT GETDATE(),
-    last_login DATETIME NULL,
-    is_active BIT NOT NULL DEFAULT 1,
-    is_verified BIT NOT NULL DEFAULT 0
+    createdAt DATETIME NOT NULL DEFAULT GETDATE(),
+    lastLogin DATETIME NULL,
+    isActive BIT NOT NULL DEFAULT 1,
+    isVerified BIT NOT NULL DEFAULT 0
 );
 
--- Bảng Posts
-CREATE TABLE Posts (
+-- Bảng posts
+CREATE TABLE posts (
     id INT IDENTITY PRIMARY KEY,
-    user_id INT NOT NULL,
+    userId INT NOT NULL,
     content NVARCHAR(500) NULL,
-    image_url NVARCHAR(255) NULL,
-    video_url NVARCHAR(255) NULL,
-    created_at DATETIME NOT NULL DEFAULT GETDATE(),
-    updated_at DATETIME NULL,
-    is_deleted BIT NOT NULL DEFAULT 0,
-    FOREIGN KEY (user_id) REFERENCES Users(id)
+    imageUrl NVARCHAR(255) NULL,
+    videoUrl NVARCHAR(255) NULL,
+    createdAt DATETIME NOT NULL DEFAULT GETDATE(),
+    updatedAt DATETIME NULL,
+    isDeleted BIT NOT NULL DEFAULT 0,
+    FOREIGN KEY (userId) REFERENCES users(id)
 );
 
--- Bảng Comments
-CREATE TABLE Comments (
+-- Bảng comments
+CREATE TABLE comments (
     id INT IDENTITY PRIMARY KEY,
-    post_id INT NOT NULL,
-    user_id INT NOT NULL,
+    postId INT NOT NULL,
+    userId INT NOT NULL,
     content NVARCHAR(255) NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT GETDATE(),
-    parent_id INT NULL,
-    FOREIGN KEY (post_id) REFERENCES Posts(id),
-    FOREIGN KEY (user_id) REFERENCES Users(id),
-    FOREIGN KEY (parent_id) REFERENCES Comments(id)
+    createdAt DATETIME NOT NULL DEFAULT GETDATE(),
+    parentId INT NULL,
+    FOREIGN KEY (postId) REFERENCES posts(id),
+    FOREIGN KEY (userId) REFERENCES users(id),
+    FOREIGN KEY (parentId) REFERENCES comments(id)
 );
 
--- Bảng Likes
-CREATE TABLE Likes (
+-- Bảng likes
+CREATE TABLE likes (
     id INT IDENTITY PRIMARY KEY,
-    post_id INT NOT NULL,
-    user_id INT NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT GETDATE(),
-    FOREIGN KEY (post_id) REFERENCES Posts(id),
-    FOREIGN KEY (user_id) REFERENCES Users(id)
+    postId INT NOT NULL,
+    userId INT NOT NULL,
+    createdAt DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (postId) REFERENCES posts(id),
+    FOREIGN KEY (userId) REFERENCES users(id)
 );
 
--- Bảng Follows
-CREATE TABLE Follows (
+-- Bảng follows
+CREATE TABLE follows (
     id INT IDENTITY PRIMARY KEY,
-    follower_id INT NOT NULL,
-    following_id INT NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT GETDATE(),
-    FOREIGN KEY (follower_id) REFERENCES Users(id),
-    FOREIGN KEY (following_id) REFERENCES Users(id)
+    followerId INT NOT NULL,
+    followingId INT NOT NULL,
+    createdAt DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (followerId) REFERENCES users(id),
+    FOREIGN KEY (followingId) REFERENCES users(id)
 );
 
--- Bảng Saved_Posts
-CREATE TABLE Saved_Posts (
+-- Bảng savedPosts
+CREATE TABLE savedPosts (
     id INT IDENTITY PRIMARY KEY,
-    user_id INT NOT NULL,
-    post_id INT NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT GETDATE(),
-    FOREIGN KEY (user_id) REFERENCES Users(id),
-    FOREIGN KEY (post_id) REFERENCES Posts(id)
+    userId INT NOT NULL,
+    postId INT NOT NULL,
+    createdAt DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (userId) REFERENCES users(id),
+    FOREIGN KEY (postId) REFERENCES posts(id)
 );
 
--- Bảng Messages
-CREATE TABLE Messages (
+-- Bảng messages
+CREATE TABLE messages (
     id INT IDENTITY PRIMARY KEY,
-    sender_id INT NOT NULL,
-    receiver_id INT NOT NULL,
+    senderId INT NOT NULL,
+    receiverId INT NOT NULL,
     content NVARCHAR(500) NULL,
-    image_url NVARCHAR(255) NULL,
-    video_url NVARCHAR(255) NULL,
-    created_at DATETIME NOT NULL DEFAULT GETDATE(),
-    is_read BIT NOT NULL DEFAULT 0,
-    FOREIGN KEY (sender_id) REFERENCES Users(id),
-    FOREIGN KEY (receiver_id) REFERENCES Users(id)
+    imageUrl NVARCHAR(255) NULL,
+    videoUrl NVARCHAR(255) NULL,
+    createdAt DATETIME NOT NULL DEFAULT GETDATE(),
+    isRead BIT NOT NULL DEFAULT 0,
+    FOREIGN KEY (senderId) REFERENCES users(id),
+    FOREIGN KEY (receiverId) REFERENCES users(id)
 );
 
--- Bảng Devices
-CREATE TABLE Devices (
+-- Bảng devices
+CREATE TABLE devices (
     id INT IDENTITY PRIMARY KEY,
-    user_id INT NOT NULL,
-    device_token NVARCHAR(255) NOT NULL,
-    device_name NVARCHAR(100) NOT NULL,
-    last_login DATETIME NOT NULL DEFAULT GETDATE(),
-    is_active BIT NOT NULL DEFAULT 1,
-    FOREIGN KEY (user_id) REFERENCES Users(id)
+    userId INT NOT NULL,
+    deviceToken NVARCHAR(255) NOT NULL,
+    deviceName NVARCHAR(100) NOT NULL,
+    lastLogin DATETIME NOT NULL DEFAULT GETDATE(),
+    isActive BIT NOT NULL DEFAULT 1,
+    FOREIGN KEY (userId) REFERENCES users(id)
 );
 
--- Bảng Notifications
-CREATE TABLE Notifications (
+-- Bảng notifications
+CREATE TABLE notifications (
     id INT IDENTITY PRIMARY KEY,
-    user_id INT NOT NULL,
+    userId INT NOT NULL,
     type NVARCHAR(50) NOT NULL,
     message NVARCHAR(255) NOT NULL,
     link NVARCHAR(255) NULL,
-    is_read BIT NOT NULL DEFAULT 0,
-    created_at DATETIME NOT NULL DEFAULT GETDATE(),
-    FOREIGN KEY (user_id) REFERENCES Users(id)
+    isRead BIT NOT NULL DEFAULT 0,
+    createdAt DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (userId) REFERENCES users(id)
 );
 
--- Bảng User_Behaviors
-CREATE TABLE User_Behaviors (
+-- Bảng userBehaviors
+CREATE TABLE userBehaviors (
     id INT IDENTITY PRIMARY KEY,
-    user_id INT NOT NULL,
+    userId INT NOT NULL,
     action NVARCHAR(50) NOT NULL,
-    target_id INT NOT NULL,
-    created_at DATETIME NOT NULL DEFAULT GETDATE(),
-    FOREIGN KEY (user_id) REFERENCES Users(id)
+    targetId INT NOT NULL,
+    createdAt DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (userId) REFERENCES users(id)
 );
 
-
-
--- Insert Users
-INSERT INTO Users (username, email, password, fullname, avatar_url, bio, created_at, is_active, is_verified) VALUES
+-- Insert users
+INSERT INTO users (username, email, password, fullName, avatarUrl, bio, createdAt, isActive, isVerified) VALUES
 ('alice', 'alice@email.com', 'pass123', N'Alice Nguyễn', NULL, N'Chào mọi người!', GETDATE(), 1, 1),
 ('bob', 'bob@email.com', 'pass123', N'Bob Trần', NULL, N'Yêu du lịch', GETDATE(), 1, 0),
 ('charlie', 'charlie@email.com', 'pass123', N'Charlie Lê', NULL, NULL, GETDATE(), 1, 1),
@@ -136,8 +134,8 @@ INSERT INTO Users (username, email, password, fullname, avatar_url, bio, created
 ('ivy', 'ivy@email.com', 'pass123', N'Ivy Hồ', NULL, N'Tôi là Ivy', GETDATE(), 1, 1),
 ('jack', 'jack@email.com', 'pass123', N'Jack Nguyễn', NULL, NULL, GETDATE(), 1, 1);
 
--- Insert Posts
-INSERT INTO Posts (user_id, content, image_url, video_url, created_at, is_deleted) VALUES
+-- Insert posts
+INSERT INTO posts (userId, content, imageUrl, videoUrl, createdAt, isDeleted) VALUES
 (1, N'Bài đầu tiên của mình!', 'img1.jpg', NULL, GETDATE(), 0),
 (2, N'Trời hôm nay thật đẹp', 'img2.jpg', NULL, GETDATE(), 0),
 (3, N'Check-in Đà Lạt', 'img3.jpg', NULL, GETDATE(), 0),
@@ -149,8 +147,8 @@ INSERT INTO Posts (user_id, content, image_url, video_url, created_at, is_delete
 (9, N'Bức ảnh kỷ niệm', 'img9.jpg', NULL, GETDATE(), 0),
 (10, N'Happy weekend!', 'img10.jpg', NULL, GETDATE(), 0);
 
--- Insert Comments
-INSERT INTO Comments (post_id, user_id, content, created_at) VALUES
+-- Insert comments
+INSERT INTO comments (postId, userId, content, createdAt) VALUES
 (1, 2, N'Chào bạn!', GETDATE()),
 (1, 3, N'Tuyệt vời quá!', GETDATE()),
 (2, 1, N'Cảnh đẹp quá', GETDATE()),
@@ -162,23 +160,23 @@ INSERT INTO Comments (post_id, user_id, content, created_at) VALUES
 (7, 9, N'Nhóm này vui ghê', GETDATE()),
 (8, 10, N'Món gì ngon vậy?', GETDATE());
 
--- Insert Likes
-INSERT INTO Likes (post_id, user_id, created_at) VALUES
+-- Insert likes
+INSERT INTO likes (postId, userId, createdAt) VALUES
 (1, 2, GETDATE()), (1, 3, GETDATE()), (2, 1, GETDATE()), (2, 4, GETDATE()), (3, 5, GETDATE()),
 (4, 6, GETDATE()), (5, 7, GETDATE()), (6, 8, GETDATE()), (7, 9, GETDATE()), (8, 10, GETDATE());
 
--- Insert Follows
-INSERT INTO Follows (follower_id, following_id, created_at) VALUES
+-- Insert follows
+INSERT INTO follows (followerId, followingId, createdAt) VALUES
 (1, 2, GETDATE()), (2, 3, GETDATE()), (3, 4, GETDATE()), (4, 5, GETDATE()), (5, 6, GETDATE()),
 (6, 7, GETDATE()), (7, 8, GETDATE()), (8, 9, GETDATE()), (9, 10, GETDATE()), (10, 1, GETDATE());
 
--- Insert Saved_Posts
-INSERT INTO Saved_Posts (user_id, post_id, created_at) VALUES
+-- Insert savedPosts
+INSERT INTO savedPosts (userId, postId, createdAt) VALUES
 (1, 2, GETDATE()), (2, 3, GETDATE()), (3, 4, GETDATE()), (4, 5, GETDATE()), (5, 6, GETDATE()),
 (6, 7, GETDATE()), (7, 8, GETDATE()), (8, 9, GETDATE()), (9, 10, GETDATE()), (10, 1, GETDATE());
 
--- Insert Messages
-INSERT INTO Messages (sender_id, receiver_id, content, created_at, is_read) VALUES
+-- Insert messages
+INSERT INTO messages (senderId, receiverId, content, createdAt, isRead) VALUES
 (1, 2, N'Hello Bob!', GETDATE(), 1),
 (2, 1, N'Hi Alice!', GETDATE(), 1),
 (3, 4, N'Chào bạn', GETDATE(), 0),
@@ -190,8 +188,8 @@ INSERT INTO Messages (sender_id, receiver_id, content, created_at, is_read) VALU
 (9, 10, N'Rảnh cafe không?', GETDATE(), 0),
 (10, 1, N'Sáng mai đi học nha', GETDATE(), 0);
 
--- Insert Devices
-INSERT INTO Devices (user_id, device_token, device_name, last_login, is_active) VALUES
+-- Insert devices
+INSERT INTO devices (userId, deviceToken, deviceName, lastLogin, isActive) VALUES
 (1, 'token1', N'iPhone 13', GETDATE(), 1),
 (2, 'token2', N'Galaxy S21', GETDATE(), 1),
 (3, 'token3', N'Macbook Pro', GETDATE(), 1),
@@ -203,8 +201,8 @@ INSERT INTO Devices (user_id, device_token, device_name, last_login, is_active) 
 (9, 'token9', N'Asus Zenbook', GETDATE(), 1),
 (10, 'token10', N'Lenovo Yoga', GETDATE(), 1);
 
--- Insert Notifications
-INSERT INTO Notifications (user_id, type, message, link, is_read, created_at) VALUES
+-- Insert notifications
+INSERT INTO notifications (userId, type, message, link, isRead, createdAt) VALUES
 (1, 'like', N'Bob đã thích bài viết của bạn', NULL, 0, GETDATE()),
 (2, 'comment', N'Alice đã bình luận bài viết của bạn', NULL, 0, GETDATE()),
 (3, 'follow', N'David vừa theo dõi bạn', NULL, 0, GETDATE()),
@@ -216,8 +214,8 @@ INSERT INTO Notifications (user_id, type, message, link, is_read, created_at) VA
 (9, 'follow', N'Jack vừa theo dõi bạn', NULL, 0, GETDATE()),
 (10, 'like', N'Alice đã thích bài viết của bạn', NULL, 0, GETDATE());
 
--- Insert User_Behaviors
-INSERT INTO User_Behaviors (user_id, action, target_id, created_at) VALUES
+-- Insert userBehaviors
+INSERT INTO userBehaviors (userId, action, targetId, createdAt) VALUES
 (1, 'view_post', 2, GETDATE()),
 (2, 'like_post', 3, GETDATE()),
 (3, 'comment_post', 4, GETDATE()),

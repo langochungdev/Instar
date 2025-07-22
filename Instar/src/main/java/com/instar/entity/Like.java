@@ -5,23 +5,23 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "Likes")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Table(name = "Likes")
 public class Like {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
-    private Post post;
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    private Post postId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    private User userId;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
