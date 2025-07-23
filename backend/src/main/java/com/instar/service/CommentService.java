@@ -1,5 +1,4 @@
 package com.instar.service;
-
 import com.instar.dto.CommentDto;
 import java.util.List;
 
@@ -10,5 +9,5 @@ public interface CommentService {
     CommentDto update(Integer id, CommentDto commentDto);
     void delete(Integer id);
     List<CommentDto> findByPostId(Integer postId);
-    List<CommentDto> findReplies(Integer commentId); // lấy các reply cho comment cha
+    List<CommentDto> findReplies(Integer commentId);
 }

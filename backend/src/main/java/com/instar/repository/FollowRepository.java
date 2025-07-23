@@ -1,5 +1,4 @@
 package com.instar.repository;
-
 import com.instar.entity.Follow;
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,5 +1,4 @@
 package com.instar.mapper;
-
 import com.instar.entity.SavedPost;
 import com.instar.dto.SavedPostDto;
 import com.instar.entity.Post;
@@ -8,22 +7,20 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SavedPostMapper {
-    public SavedPostDto toDto(SavedPost entity) {
-        if (entity == null) return null;
+    public SavedPostDto toDto(SavedPost e) {
         return SavedPostDto.builder()
-                .id(entity.getId())
-                .userId(entity.getUser() != null ? entity.getUser().getId() : null)
-                .postId(entity.getPost() != null ? entity.getPost().getId() : null)
-                .createdAt(entity.getCreatedAt())
+                .id(e.getId())
+                .userId(e.getUserId().getId())
+                .postId(e.getPostId().getId())
+                .createdAt(e.getCreatedAt())
                 .build();
     }
 
     public SavedPost toEntity(SavedPostDto dto, User user, Post post) {
-        if (dto == null) return null;
         return SavedPost.builder()
                 .id(dto.getId())
-                .user(user)
-                .post(post)
+                .userId(user)
+                .postId(post)
                 .createdAt(dto.getCreatedAt())
                 .build();
     }

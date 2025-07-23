@@ -1,10 +1,9 @@
 package com.instar.service.impl;
-
 import com.instar.dto.CommentDto;
 import com.instar.entity.Comment;
 import com.instar.entity.Post;
 import com.instar.entity.User;
-import com.instar.exception.CustomException;
+//import com.instar.exception.CustomException;
 import com.instar.mapper.CommentMapper;
 import com.instar.repository.CommentRepository;
 import com.instar.repository.PostRepository;
@@ -12,7 +11,6 @@ import com.instar.repository.UserRepository;
 import com.instar.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,22 +30,22 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public CommentDto create(CommentDto commentDto) {
-        Post post = postRepository.findById(commentDto.getPostId()).orElse(null);
-        User user = userRepository.findById(commentDto.getUserId()).orElse(null);
-        Comment parent = commentDto.getParentId() == null ? null : commentRepository.findById(commentDto.getParentId()).orElse(null);
-        Comment comment = commentMapper.toEntity(commentDto, post, user, parent);
-        comment = commentRepository.save(comment);
-        return commentMapper.toDto(comment);
+    public CommentDto create(CommentDto dto) {
+        Post post = postRepository.findById(dto.getPostId()).orElse(null);
+        User user = userRepository.findById(dto.getUserId()).orElse(null);
+        Comment parent = dto.getParentId() == null ? null : commentRepository.findById(dto.getParentId()).orElse(null);
+        Comment e = commentMapper.toEntity(dto, post, user, parent);
+        e = commentRepository.save(e);
+        return commentMapper.toDto(e);
     }
 
     @Override
-    public CommentDto update(Integer id, CommentDto commentDto) {
-        Comment comment = commentRepository.findById(id).orElse(null);
-        if (comment == null) return null;
-        comment.setContent(commentDto.getContent());
-        comment = commentRepository.save(comment);
-        return commentMapper.toDto(comment);
+    public CommentDto update(Integer id, CommentDto dto) {
+        Comment e = commentRepository.findById(id).orElse(null);
+        if (e == null) return null;
+        e.setContent(dto.getContent());
+        e = commentRepository.save(e);
+        return commentMapper.toDto(e);
     }
 
     @Override
@@ -58,36 +56,27 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentDto> findByPostId(Integer postId) {
         return commentRepository.findAll().stream()
-                .filter(c -> c.getPost().getId().equals(postId))
-                .map(commentMapper::toDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<CommentDto> findReplies(Integer commentId) {
-        return commentRepository.findAll().stream()
-                .filter(c -> c.getParent() != null && c.getParent().getId().equals(commentId))
+                .filter(c -> c.getPostId().getId().equals(postId))
                 .map(commentMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public CommentDto createReply(CommentDto dto) {
-        // Lấy parent comment
-        Comment parent = commentRepository.findById(dto.getParentId())
-                .orElseThrow(() -> new CustomException("Parent comment không tồn tại"));
-        // Lấy post liên quan
-        Post post = postRepository.findById(dto.getPostId())
-                .orElseThrow(() -> new CustomException("Post không tồn tại"));
-        // Lấy user comment
-        User user = userRepository.findById(dto.getUserId())
-                .orElseThrow(() -> new CustomException("User không tồn tại"));
+        Comment parent = commentRepository.findById(dto.getParentId()).orElse(null);
+        Post post = postRepository.findById(dto.getPostId()).orElse(null);
+        User user = userRepository.findById(dto.getUserId()).orElse(null);
 
-        // Chuyển sang entity đầy đủ
         Comment reply = commentMapper.toEntity(dto, post, user, parent);
         reply = commentRepository.save(reply);
         return commentMapper.toDto(reply);
     }
 
+    @Override
+    public List<CommentDto> findReplies(Integer commentId) {
+        return commentRepository.findByParentId_Id(commentId).stream()
+                .map(commentMapper::toDto)
+                .collect(Collectors.toList());
+    }
 
 }

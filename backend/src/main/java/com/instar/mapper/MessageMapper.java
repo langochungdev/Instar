@@ -1,5 +1,4 @@
 package com.instar.mapper;
-
 import com.instar.entity.Message;
 import com.instar.dto.MessageDto;
 import com.instar.entity.User;
@@ -7,26 +6,24 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class MessageMapper {
-    public MessageDto toDto(Message entity) {
-        if (entity == null) return null;
+    public MessageDto toDto(Message e) {
         return MessageDto.builder()
-                .id(entity.getId())
-                .senderId(entity.getSender() != null ? entity.getSender().getId() : null)
-                .receiverId(entity.getReceiver() != null ? entity.getReceiver().getId() : null)
-                .content(entity.getContent())
-                .imageUrl(entity.getImageUrl())
-                .videoUrl(entity.getVideoUrl())
-                .createdAt(entity.getCreatedAt())
-                .isRead(entity.getIsRead())
+                .id(e.getId())
+                .senderId(e.getSenderId().getId())
+                .receiverId(e.getReceiverId().getId())
+                .content(e.getContent())
+                .imageUrl(e.getImageUrl())
+                .videoUrl(e.getVideoUrl())
+                .createdAt(e.getCreatedAt())
+                .isRead(e.getIsRead())
                 .build();
     }
 
     public Message toEntity(MessageDto dto, User sender, User receiver) {
-        if (dto == null) return null;
         return Message.builder()
                 .id(dto.getId())
-                .sender(sender)
-                .receiver(receiver)
+                .senderId(sender)
+                .receiverId(receiver)
                 .content(dto.getContent())
                 .imageUrl(dto.getImageUrl())
                 .videoUrl(dto.getVideoUrl())

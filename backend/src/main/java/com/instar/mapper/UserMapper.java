@@ -1,29 +1,26 @@
 package com.instar.mapper;
-
 import com.instar.entity.User;
 import com.instar.dto.UserDto;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserMapper {
-    public UserDto toDto(User user) {
-        if (user == null) return null;
+    public UserDto toDto(User e) {
         return UserDto.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .fullname(user.getFullname())
-                .avatarUrl(user.getAvatarUrl())
-                .bio(user.getBio())
-                .createdAt(user.getCreatedAt())
-                .lastLogin(user.getLastLogin())
-                .isActive(user.getIsActive())
-                .isVerified(user.getIsVerified())
+                .id(e.getId())
+                .username(e.getUsername())
+                .email(e.getEmail())
+                .fullname(e.getFullname())
+                .avatarUrl(e.getAvatarUrl())
+                .bio(e.getBio())
+                .createdAt(e.getCreatedAt())
+                .lastLogin(e.getLastLogin())
+                .isActive(e.getIsActive())
+                .isVerified(e.getIsVerified())
                 .build();
     }
 
     public User toEntity(UserDto dto) {
-        if (dto == null) return null;
         return User.builder()
                 .id(dto.getId())
                 .username(dto.getUsername())

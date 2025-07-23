@@ -1,5 +1,4 @@
 package com.instar.mapper;
-
 import com.instar.entity.Comment;
 import com.instar.dto.CommentDto;
 import com.instar.entity.Post;
@@ -8,27 +7,25 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CommentMapper {
-    public CommentDto toDto(Comment comment) {
-        if (comment == null) return null;
+    public CommentDto toDto(Comment e) {
         return CommentDto.builder()
-                .id(comment.getId())
-                .postId(comment.getPost() != null ? comment.getPost().getId() : null)
-                .userId(comment.getUser() != null ? comment.getUser().getId() : null)
-                .content(comment.getContent())
-                .createdAt(comment.getCreatedAt())
-                .parentId(comment.getParent() != null ? comment.getParent().getId() : null)
+                .id(e.getId())
+                .postId(e.getPostId().getId())
+                .userId(e.getUserId().getId())
+                .content(e.getContent())
+                .createdAt(e.getCreatedAt())
+                .parentId(e.getParentId() != null ? e.getParentId().getId() : null)
                 .build();
     }
 
     public Comment toEntity(CommentDto dto, Post post, User user, Comment parent) {
-        if (dto == null) return null;
         return Comment.builder()
                 .id(dto.getId())
-                .post(post)
-                .user(user)
+                .postId(post)
+                .userId(user)
                 .content(dto.getContent())
                 .createdAt(dto.getCreatedAt())
-                .parent(parent)
+                .parentId(parent)
                 .build();
     }
 }

@@ -7,25 +7,23 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class PostMapper {
-    public PostDto toDto(Post post) {
-        if (post == null) return null;
+    public PostDto toDto(Post e) {
         return PostDto.builder()
-                .id(post.getId())
-                .userId(post.getUser() != null ? post.getUser().getId() : null)
-                .content(post.getContent())
-                .imageUrl(post.getImageUrl())
-                .videoUrl(post.getVideoUrl())
-                .createdAt(post.getCreatedAt())
-                .updatedAt(post.getUpdatedAt())
-                .isDeleted(post.getIsDeleted())
+                .id(e.getId())
+                .userId(e.getUserId().getId())
+                .content(e.getContent())
+                .imageUrl(e.getImageUrl())
+                .videoUrl(e.getVideoUrl())
+                .createdAt(e.getCreatedAt())
+                .updatedAt(e.getUpdatedAt())
+                .isDeleted(e.getIsDeleted())
                 .build();
     }
 
     public Post toEntity(PostDto dto, User user) {
-        if (dto == null) return null;
         return Post.builder()
                 .id(dto.getId())
-                .user(user)
+                .userId(user)
                 .content(dto.getContent())
                 .imageUrl(dto.getImageUrl())
                 .videoUrl(dto.getVideoUrl())

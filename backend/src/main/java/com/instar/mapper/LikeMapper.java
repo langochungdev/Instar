@@ -1,5 +1,4 @@
 package com.instar.mapper;
-
 import com.instar.entity.Like;
 import com.instar.dto.LikeDto;
 import com.instar.entity.Post;
@@ -8,22 +7,20 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class LikeMapper {
-    public LikeDto toDto(Like like) {
-        if (like == null) return null;
+    public LikeDto toDto(Like e) {
         return LikeDto.builder()
-                .id(like.getId())
-                .postId(like.getPost() != null ? like.getPost().getId() : null)
-                .userId(like.getUser() != null ? like.getUser().getId() : null)
-                .createdAt(like.getCreatedAt())
+                .id(e.getId())
+                .postId(e.getPostId().getId())
+                .userId(e.getUserId().getId())
+                .createdAt(e.getCreatedAt())
                 .build();
     }
 
     public Like toEntity(LikeDto dto, Post post, User user) {
-        if (dto == null) return null;
         return Like.builder()
                 .id(dto.getId())
-                .post(post)
-                .user(user)
+                .postId(post)
+                .userId(user)
                 .createdAt(dto.getCreatedAt())
                 .build();
     }

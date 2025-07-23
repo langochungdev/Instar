@@ -1,9 +1,11 @@
 package com.instar.dto;
-
-import lombok.Data;
+import lombok.*;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ChangePasswordRequest {
-    private String oldPassword; // nếu cần xác thực lại mật khẩu cũ, có thể bỏ nếu không cần
+    private String oldPassword;
     private String newPassword;
 }

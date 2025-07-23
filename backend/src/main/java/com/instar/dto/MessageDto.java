@@ -1,11 +1,10 @@
 package com.instar.dto;
-
-import lombok.Builder;
-import lombok.Data;
-
+import lombok.*;
 import java.time.LocalDateTime;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class MessageDto {
     private Integer id;

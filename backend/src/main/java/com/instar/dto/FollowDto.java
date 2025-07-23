@@ -1,11 +1,10 @@
 package com.instar.dto;
-
-import lombok.Builder;
-import lombok.Data;
-
 import java.time.LocalDateTime;
+import lombok.*;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class FollowDto {
     private Integer id;

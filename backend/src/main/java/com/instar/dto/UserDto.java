@@ -1,18 +1,18 @@
 package com.instar.dto;
-import com.instar.validation.UniqueEmail;
-import com.instar.validation.UniqueUsername;
-import lombok.Builder;
-import lombok.Data;
-
+//import com.instar.validation.UniqueEmail;
+//import com.instar.validation.UniqueUsername;
+import lombok.*;
 import java.time.LocalDateTime;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class UserDto {
     private Integer id;
-    @UniqueUsername
+//    @UniqueUsername
     private String username;
-    @UniqueEmail
+//    @UniqueEmail
     private String email;
     private String fullname;
     private String avatarUrl;
