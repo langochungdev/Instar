@@ -1,5 +1,4 @@
 package com.instar.service;
-
 import com.instar.dto.UserBehaviorDto;
 import java.util.List;
 

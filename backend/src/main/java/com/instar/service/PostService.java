@@ -1,5 +1,4 @@
 package com.instar.service;
-
 import com.instar.dto.PostDto;
 import java.util.List;
 

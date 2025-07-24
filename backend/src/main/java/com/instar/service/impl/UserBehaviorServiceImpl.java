@@ -1,5 +1,4 @@
 package com.instar.service.impl;
-
 import com.instar.dto.UserBehaviorDto;
 import com.instar.entity.UserBehavior;
 import com.instar.entity.User;
@@ -9,7 +8,6 @@ import com.instar.repository.UserRepository;
 import com.instar.service.UserBehaviorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,17 +19,17 @@ public class UserBehaviorServiceImpl implements UserBehaviorService {
     private final UserBehaviorMapper userBehaviorMapper;
 
     @Override
-    public UserBehaviorDto logBehavior(UserBehaviorDto behaviorDto) {
-        User user = userRepository.findById(behaviorDto.getUserId()).orElse(null);
-        UserBehavior entity = userBehaviorMapper.toEntity(behaviorDto, user);
-        entity = userBehaviorRepository.save(entity);
-        return userBehaviorMapper.toDto(entity);
+    public UserBehaviorDto logBehavior(UserBehaviorDto dto) {
+        User user = userRepository.findById(dto.getUserId()).orElse(null);
+        UserBehavior e = userBehaviorMapper.toEntity(dto, user);
+        e = userBehaviorRepository.save(e);
+        return userBehaviorMapper.toDto(e);
     }
 
     @Override
     public List<UserBehaviorDto> findByUserId(Integer userId) {
         return userBehaviorRepository.findAll().stream()
-                .filter(b -> b.getUser().getId().equals(userId))
+                .filter(b -> b.getUserId().getId().equals(userId))
                 .map(userBehaviorMapper::toDto)
                 .collect(Collectors.toList());
     }

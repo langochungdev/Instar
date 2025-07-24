@@ -5,6 +5,5 @@ import java.util.List;
 
 public interface NotificationService {
     List<NotificationDto> findByUserId(Integer userId);
-    void markAsRead(Integer notificationId);
     void markRead(Integer notificationId);
 }

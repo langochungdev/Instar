@@ -1,5 +1,4 @@
 package com.instar.service;
-
 import com.instar.dto.SavedPostDto;
 import java.util.List;
 

@@ -18,11 +18,6 @@ public class UserBehavior {
     @JoinColumn(nullable = false)
     private User userId;
 
-    @Column(length = 50)
-    private String action;
-
-    @Column(nullable = false)
-    private Integer targetId;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
