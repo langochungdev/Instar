@@ -18,7 +18,7 @@ public class DeviceMapperTest {
         User user = User.builder().id(10).build();
         Device device = Device.builder()
                 .id(1)
-                .userId(user)
+                .user(user)
                 .deviceToken("token123")
                 .deviceName("iPhone 15")
                 .lastLogin(LocalDateTime.now())
@@ -54,7 +54,7 @@ public class DeviceMapperTest {
 
         assertNotNull(entity);
         assertEquals(dto.getId(), entity.getId());
-        assertEquals(user, entity.getUserId());
+        assertEquals(user, entity.getUser());
         assertEquals(dto.getDeviceToken(), entity.getDeviceToken());
         assertEquals(dto.getDeviceName(), entity.getDeviceName());
         assertEquals(dto.getLastLogin(), entity.getLastLogin());

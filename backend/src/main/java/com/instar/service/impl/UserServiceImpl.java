@@ -39,12 +39,13 @@ public class UserServiceImpl implements UserService {
     public UserDto update(Integer id, UserDto dto) {
         User e = userRepository.findById(id).orElse(null);
         if (e == null) return null;
-        e.setFullname(dto.getFullname());
+        e.setFullName(dto.getFullName());
         e.setAvatarUrl(dto.getAvatarUrl());
         e.setBio(dto.getBio());
         e.setIsActive(dto.getIsActive());
         e.setIsVerified(dto.getIsVerified());
         e.setLastLogin(dto.getLastLogin());
+        e.setRole(dto.getRole());
         e = userRepository.save(e);
         return userMapper.toDto(e);
     }
@@ -80,9 +81,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public AuthResponse login(AuthRequest request) {
         User user = userRepository.findByUsername(request.getUsername()).orElse(null);
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) return null;
-        String token = jwtUtil.generateToken(user.getUsername());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getUsername());
+        if (user == null) throw new RuntimeException("User không tồn tại!");
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) throw new RuntimeException("Sai mật khẩu!");
+        String token = jwtUtil.createToken(user.getUsername());
+        String refreshToken = jwtUtil.createRefreshToken(user.getUsername());
         long expiresIn = jwtUtil.getExpiration();
         return AuthResponse.builder()
                 .accessToken(token)
@@ -90,6 +92,7 @@ public class UserServiceImpl implements UserService {
                 .expiresIn(expiresIn)
                 .build();
     }
+
 
     @Override
     public void changePassword(Integer id, String oldPassword, String newPassword) {

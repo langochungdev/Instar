@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface LikeRepository extends JpaRepository<Like, Integer> {
-    boolean existsByPostIdAndUserId(Integer postId, Integer userId);
-    Optional<Like> findByPostIdAndUserId(Integer postId, Integer userId);
+    boolean existsByPostId_IdAndUserId_Id(Integer postId, Integer userId);
+    Optional<Like> findByPostId_IdAndUserId_Id(Integer postId, Integer userId);
 }

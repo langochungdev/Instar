@@ -32,8 +32,8 @@ public class MessageServiceImpl implements MessageService {
     public List<MessageDto> getConversation(Integer userId1, Integer userId2) {
         return messageRepository.findAll().stream()
                 .filter(m -> (
-                    (m.getSenderId().getId().equals(userId1) && m.getReceiverId().getId().equals(userId2)) ||
-                    (m.getSenderId().getId().equals(userId2) && m.getReceiverId().getId().equals(userId1))
+                    (m.getSender().getId().equals(userId1) && m.getReceiver().getId().equals(userId2)) ||
+                    (m.getSender().getId().equals(userId2) && m.getReceiver().getId().equals(userId1))
                 ))
                 .map(messageMapper::toDto)
                 .collect(Collectors.toList());
@@ -42,7 +42,7 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public List<MessageDto> getConversations(Integer userId) {
         return messageRepository.findAll().stream()
-                .filter(m -> m.getSenderId().getId().equals(userId) || m.getReceiverId().getId().equals(userId))
+                .filter(m -> m.getSender().getId().equals(userId) || m.getReceiver().getId().equals(userId))
                 .map(messageMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -53,8 +53,8 @@ public class MessageServiceImpl implements MessageService {
         User receiver = userRepository.findById(dto.getReceiverId()).orElse(null);
 
         Message e = Message.builder()
-                .senderId(sender)
-                .receiverId(receiver)
+                .sender(sender)
+                .receiver(receiver)
                 .content(dto.getContent())
                 .imageUrl(dto.getImageUrl())
                 .videoUrl(dto.getVideoUrl())

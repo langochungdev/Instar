@@ -14,11 +14,12 @@ public class UserDto {
     private String username;
 //    @UniqueEmail
     private String email;
-    private String fullname;
+    private String fullName;
     private String avatarUrl;
     private String bio;
     private LocalDateTime createdAt;
     private LocalDateTime lastLogin;
     private Boolean isActive;
     private Boolean isVerified;
+    private String role = "USER";
 }

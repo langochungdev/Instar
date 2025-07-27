@@ -10,13 +10,14 @@ public class UserMapper {
                 .id(e.getId())
                 .username(e.getUsername())
                 .email(e.getEmail())
-                .fullname(e.getFullname())
+                .fullName(e.getFullName())
                 .avatarUrl(e.getAvatarUrl())
                 .bio(e.getBio())
                 .createdAt(e.getCreatedAt())
                 .lastLogin(e.getLastLogin())
                 .isActive(e.getIsActive())
                 .isVerified(e.getIsVerified())
+                .role(e.getRole())
                 .build();
     }
 
@@ -25,13 +26,14 @@ public class UserMapper {
                 .id(dto.getId())
                 .username(dto.getUsername())
                 .email(dto.getEmail())
-                .fullname(dto.getFullname())
+                .fullName(dto.getFullName())
                 .avatarUrl(dto.getAvatarUrl())
                 .bio(dto.getBio())
                 .createdAt(dto.getCreatedAt())
                 .lastLogin(dto.getLastLogin())
                 .isActive(dto.getIsActive())
                 .isVerified(dto.getIsVerified())
+                .role(dto.getRole())
                 .build();
     }
 }

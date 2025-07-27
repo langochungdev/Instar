@@ -61,7 +61,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<PostDto> findByUserId(Integer userId) {
         return postRepository.findAll().stream()
-                .filter(p -> p.getUserId().getId().equals(userId))
+                .filter(p -> p.getUser().getId().equals(userId))
                 .map(postMapper::toDto)
                 .collect(Collectors.toList());
     }

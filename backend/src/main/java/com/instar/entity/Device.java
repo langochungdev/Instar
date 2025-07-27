@@ -16,7 +16,7 @@ public class Device {
 
     @ManyToOne
     @JoinColumn(nullable = false)
-    private User userId;
+    private User user;
 
     @Column(nullable = false, length = 255)
     private String deviceToken;

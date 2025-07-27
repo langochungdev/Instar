@@ -1,5 +1,4 @@
 package com.instar.controller;
-
 import com.instar.service.FollowService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

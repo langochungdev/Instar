@@ -35,7 +35,7 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public List<DeviceDto> findByUserId(Integer userId) {
         return deviceRepository.findAll().stream()
-                .filter(d -> d.getUserId().getId().equals(userId))
+                .filter(d -> d.getUser().getId().equals(userId))
                 .map(deviceMapper::toDto)
                 .collect(Collectors.toList());
     }

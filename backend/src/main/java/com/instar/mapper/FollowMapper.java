@@ -9,8 +9,8 @@ public class FollowMapper {
     public FollowDto toDto(Follow e) {
         return FollowDto.builder()
                 .id(e.getId())
-                .followerId(e.getFollowerId().getId())
-                .followingId(e.getFollowingId().getId())
+                .followerId(e.getFollower().getId())
+                .followingId(e.getFollowing().getId())
                 .createdAt(e.getCreatedAt())
                 .build();
     }
@@ -18,8 +18,8 @@ public class FollowMapper {
     public Follow toEntity(FollowDto dto, User follower, User following) {
         return Follow.builder()
                 .id(dto.getId())
-                .followerId(follower)
-                .followingId(following)
+                .follower(follower)
+                .following(following)
                 .createdAt(dto.getCreatedAt())
                 .build();
     }

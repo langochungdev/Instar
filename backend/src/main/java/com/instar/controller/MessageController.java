@@ -1,5 +1,4 @@
 package com.instar.controller;
-
 import com.instar.dto.MessageDto;
 import com.instar.service.MessageService;
 import lombok.RequiredArgsConstructor;

@@ -10,8 +10,8 @@ public class SavedPostMapper {
     public SavedPostDto toDto(SavedPost e) {
         return SavedPostDto.builder()
                 .id(e.getId())
-                .userId(e.getUserId().getId())
-                .postId(e.getPostId().getId())
+                .userId(e.getUser().getId())
+                .postId(e.getPost().getId())
                 .createdAt(e.getCreatedAt())
                 .build();
     }
@@ -19,8 +19,8 @@ public class SavedPostMapper {
     public SavedPost toEntity(SavedPostDto dto, User user, Post post) {
         return SavedPost.builder()
                 .id(dto.getId())
-                .userId(user)
-                .postId(post)
+                .user(user)
+                .post(post)
                 .createdAt(dto.getCreatedAt())
                 .build();
     }

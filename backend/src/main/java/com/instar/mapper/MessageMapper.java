@@ -9,8 +9,8 @@ public class MessageMapper {
     public MessageDto toDto(Message e) {
         return MessageDto.builder()
                 .id(e.getId())
-                .senderId(e.getSenderId().getId())
-                .receiverId(e.getReceiverId().getId())
+                .senderId(e.getSender().getId())
+                .receiverId(e.getReceiver().getId())
                 .content(e.getContent())
                 .imageUrl(e.getImageUrl())
                 .videoUrl(e.getVideoUrl())
@@ -22,8 +22,8 @@ public class MessageMapper {
     public Message toEntity(MessageDto dto, User sender, User receiver) {
         return Message.builder()
                 .id(dto.getId())
-                .senderId(sender)
-                .receiverId(receiver)
+                .sender(sender)
+                .receiver(receiver)
                 .content(dto.getContent())
                 .imageUrl(dto.getImageUrl())
                 .videoUrl(dto.getVideoUrl())

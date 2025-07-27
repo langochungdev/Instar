@@ -27,8 +27,8 @@ public class SavedPostServiceImpl implements SavedPostService {
         User user = userRepository.findById(userId).orElse(null);
         Post post = postRepository.findById(postId).orElse(null);
         SavedPost e = SavedPost.builder()
-                .userId(user)
-                .postId(post)
+                .user(user)
+                .post(post)
                 .createdAt(java.time.LocalDateTime.now())
                 .build();
         e = savedPostRepository.save(e);
@@ -38,7 +38,7 @@ public class SavedPostServiceImpl implements SavedPostService {
     @Override
     public void unsavePost(Integer userId, Integer postId) {
         savedPostRepository.findAll().stream()
-                .filter(s -> s.getUserId().getId().equals(userId) && s.getPostId().getId().equals(postId))
+                .filter(s -> s.getUser().getId().equals(userId) && s.getPost().getId().equals(postId))
                 .findFirst()
                 .ifPresent(s -> savedPostRepository.deleteById(s.getId()));
     }
@@ -46,7 +46,7 @@ public class SavedPostServiceImpl implements SavedPostService {
     @Override
     public List<SavedPostDto> findByUserId(Integer userId) {
         return savedPostRepository.findAll().stream()
-                .filter(s -> s.getUserId().getId().equals(userId))
+                .filter(s -> s.getUser().getId().equals(userId))
                 .map(savedPostMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -54,18 +54,18 @@ public class SavedPostServiceImpl implements SavedPostService {
     @Override
     public boolean isPostSaved(Integer userId, Integer postId) {
         return savedPostRepository.findAll().stream()
-                .anyMatch(s -> s.getUserId().getId().equals(userId) && s.getPostId().getId().equals(postId));
+                .anyMatch(s -> s.getUser().getId().equals(userId) && s.getPost().getId().equals(postId));
     }
 
     @Override
     public SavedPostDto save(Integer postId, Integer userId) {
-        if (savedPostRepository.existsByPostIdAndUserId(postId, userId)) return null;
+        if (savedPostRepository.existsByPostId_IdAndUserId_Id(postId, userId)) return null;
         Post post = postRepository.findById(postId).orElse(null);
         User user = userRepository.findById(userId).orElse(null);
 
         SavedPost e = SavedPost.builder()
-                .postId(post)
-                .userId(user)
+                .post(post)
+                .user(user)
                 .createdAt(LocalDateTime.now())
                 .build();
         e = savedPostRepository.save(e);
@@ -74,7 +74,7 @@ public class SavedPostServiceImpl implements SavedPostService {
 
     @Override
     public void unsave(Integer postId, Integer userId) {
-        SavedPost e = savedPostRepository.findByPostIdAndUserId(postId, userId).orElse(null);
+        SavedPost e = savedPostRepository.findByPostId_IdAndUserId_Id(postId, userId).orElse(null);
         savedPostRepository.delete(e);
     }
 }

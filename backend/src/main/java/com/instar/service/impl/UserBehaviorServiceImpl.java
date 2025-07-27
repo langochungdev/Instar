@@ -29,7 +29,7 @@ public class UserBehaviorServiceImpl implements UserBehaviorService {
     @Override
     public List<UserBehaviorDto> findByUserId(Integer userId) {
         return userBehaviorRepository.findAll().stream()
-                .filter(b -> b.getUserId().getId().equals(userId))
+                .filter(b -> b.getUser().getId().equals(userId))
                 .map(userBehaviorMapper::toDto)
                 .collect(Collectors.toList());
     }

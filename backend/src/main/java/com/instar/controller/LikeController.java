@@ -1,6 +1,4 @@
 package com.instar.controller;
-
-import com.instar.dto.LikeDto;
 import com.instar.service.LikeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

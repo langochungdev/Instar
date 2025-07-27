@@ -20,8 +20,8 @@ public class FollowMapperTest {
         LocalDateTime now = LocalDateTime.now();
         Follow follow = Follow.builder()
                 .id(1)
-                .followerId(follower)
-                .followingId(following)
+                .follower(follower)
+                .following(following)
                 .createdAt(now)
                 .build();
 
@@ -51,8 +51,8 @@ public class FollowMapperTest {
 
         assertNotNull(follow);
         assertEquals(dto.getId(), follow.getId());
-        assertEquals(follower, follow.getFollowerId());
-        assertEquals(following, follow.getFollowingId());
+        assertEquals(follower, follow.getFollower());
+        assertEquals(following, follow.getFollowing());
         assertEquals(dto.getCreatedAt(), follow.getCreatedAt());
         System.out.println("testDtoToEntity thành công");
     }

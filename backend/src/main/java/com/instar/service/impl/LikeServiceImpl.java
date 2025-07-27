@@ -27,8 +27,8 @@ public class LikeServiceImpl implements LikeService {
         Post post = postRepository.findById(postId).orElse(null);
         User user = userRepository.findById(userId).orElse(null);
         Like like = Like.builder()
-                .postId(post)
-                .userId(user)
+                .post(post)
+                .user(user)
                 .createdAt(java.time.LocalDateTime.now())
                 .build();
         like = likeRepository.save(like);
@@ -38,7 +38,7 @@ public class LikeServiceImpl implements LikeService {
     @Override
     public void unlikePost(Integer postId, Integer userId) {
         likeRepository.findAll().stream()
-                .filter(l -> l.getPostId().getId().equals(postId) && l.getUserId().getId().equals(userId))
+                .filter(l -> l.getPost().getId().equals(postId) && l.getUser().getId().equals(userId))
                 .findFirst()
                 .ifPresent(l -> likeRepository.deleteById(l.getId()));
     }
@@ -46,7 +46,7 @@ public class LikeServiceImpl implements LikeService {
     @Override
     public List<LikeDto> findByPostId(Integer postId) {
         return likeRepository.findAll().stream()
-                .filter(l -> l.getPostId().getId().equals(postId))
+                .filter(l -> l.getPost().getId().equals(postId))
                 .map(likeMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -54,17 +54,17 @@ public class LikeServiceImpl implements LikeService {
     @Override
     public boolean isUserLikedPost(Integer postId, Integer userId) {
         return likeRepository.findAll().stream()
-                .anyMatch(l -> l.getPostId().getId().equals(postId) && l.getUserId().getId().equals(userId));
+                .anyMatch(l -> l.getPost().getId().equals(postId) && l.getUser().getId().equals(userId));
     }
 
     @Override
     public LikeDto like(Integer postId, Integer userId) {
-        if (likeRepository.existsByPostIdAndUserId(postId, userId)) return null;
+        if (likeRepository.existsByPostId_IdAndUserId_Id(postId, userId)) return null;
         Post post = postRepository.findById(postId).orElse(null);
         User user = userRepository.findById(userId).orElse(null);
         Like e = Like.builder()
-                .postId(post)
-                .userId(user)
+                .post(post)
+                .user(user)
                 .createdAt(LocalDateTime.now())
                 .build();
         e = likeRepository.save(e);
@@ -73,7 +73,7 @@ public class LikeServiceImpl implements LikeService {
 
     @Override
     public void unlike(Integer postId, Integer userId) {
-        Like e = likeRepository.findByPostIdAndUserId(postId, userId).orElse(null);
+        Like e = likeRepository.findByPostId_IdAndUserId_Id(postId, userId).orElse(null);
         likeRepository.delete(e);
     }
 }

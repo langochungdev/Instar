@@ -24,8 +24,8 @@ public class FollowServiceImpl implements FollowService {
         User follower = userRepository.findById(followerId).orElse(null);
         User following = userRepository.findById(followingId).orElse(null);
         Follow follow = Follow.builder()
-                .followerId(follower)
-                .followingId(following)
+                .follower(follower)
+                .following(following)
                 .createdAt(java.time.LocalDateTime.now())
                 .build();
         follow = followRepository.save(follow);
@@ -35,7 +35,7 @@ public class FollowServiceImpl implements FollowService {
     @Override
     public void unfollow(Integer followerId, Integer followingId) {
         followRepository.findAll().stream()
-                .filter(f -> f.getFollowerId().getId().equals(followerId) && f.getFollowingId().getId().equals(followingId))
+                .filter(f -> f.getFollower().getId().equals(followerId) && f.getFollowing().getId().equals(followingId))
                 .findFirst()
                 .ifPresent(f -> followRepository.deleteById(f.getId()));
     }
@@ -43,7 +43,7 @@ public class FollowServiceImpl implements FollowService {
     @Override
     public List<FollowDto> getFollowers(Integer userId) {
         return followRepository.findAll().stream()
-                .filter(f -> f.getFollowingId().getId().equals(userId))
+                .filter(f -> f.getFollowing().getId().equals(userId))
                 .map(followMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -51,7 +51,7 @@ public class FollowServiceImpl implements FollowService {
     @Override
     public List<FollowDto> getFollowing(Integer userId) {
         return followRepository.findAll().stream()
-                .filter(f -> f.getFollowerId().getId().equals(userId))
+                .filter(f -> f.getFollower().getId().equals(userId))
                 .map(followMapper::toDto)
                 .collect(Collectors.toList());
     }
@@ -59,6 +59,6 @@ public class FollowServiceImpl implements FollowService {
     @Override
     public boolean isFollowing(Integer followerId, Integer followingId) {
         return followRepository.findAll().stream()
-                .anyMatch(f -> f.getFollowerId().getId().equals(followerId) && f.getFollowingId().getId().equals(followingId));
+                .anyMatch(f -> f.getFollower().getId().equals(followerId) && f.getFollowing().getId().equals(followingId));
     }
 }

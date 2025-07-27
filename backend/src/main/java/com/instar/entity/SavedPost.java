@@ -16,11 +16,11 @@ public class SavedPost {
 
     @ManyToOne
     @JoinColumn(nullable = false)
-    private User userId;
+    private User user;
 
     @ManyToOne
     @JoinColumn(nullable = false)
-    private Post postId;
+    private Post post;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

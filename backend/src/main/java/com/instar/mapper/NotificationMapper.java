@@ -9,7 +9,7 @@ public class NotificationMapper {
     public NotificationDto toDto(Notification e) {
         return NotificationDto.builder()
                 .id(e.getId())
-                .userId(e.getUserId().getId())
+                .userId(e.getUser().getId())
                 .type(e.getType())
                 .message(e.getMessage())
                 .link(e.getLink())
@@ -21,7 +21,7 @@ public class NotificationMapper {
     public Notification toEntity(NotificationDto dto, User user) {
         return Notification.builder()
                 .id(dto.getId())
-                .userId(user)
+                .user(user)
                 .type(dto.getType())
                 .message(dto.getMessage())
                 .link(dto.getLink())

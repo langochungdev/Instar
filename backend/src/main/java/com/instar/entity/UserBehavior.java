@@ -16,8 +16,13 @@ public class UserBehavior {
 
     @ManyToOne
     @JoinColumn(nullable = false)
-    private User userId;
+    private User user;
 
+    @Column(nullable = false)
+    private String action;
+
+    @Column(nullable = false)
+    private int targetId;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

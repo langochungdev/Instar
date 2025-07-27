@@ -56,7 +56,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentDto> findByPostId(Integer postId) {
         return commentRepository.findAll().stream()
-                .filter(c -> c.getPostId().getId().equals(postId))
+                .filter(c -> c.getPost().getId().equals(postId))
                 .map(commentMapper::toDto)
                 .collect(Collectors.toList());
     }

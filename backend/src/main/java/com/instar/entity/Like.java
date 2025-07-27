@@ -17,11 +17,11 @@ public class Like {
 
     @ManyToOne
     @JoinColumn(nullable = false)
-    private Post postId;
+    private Post post;
 
     @ManyToOne
     @JoinColumn(nullable = false)
-    private User userId;
+    private User user;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

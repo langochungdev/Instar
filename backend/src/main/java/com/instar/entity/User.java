@@ -24,7 +24,7 @@ public class User {
     private String password;
 
     @Column(nullable = false, length = 100)
-    private String fullname;
+    private String fullName;
 
     @Column(length = 255)
     private String avatarUrl;
@@ -42,4 +42,7 @@ public class User {
 
     @Column(nullable = false)
     private Boolean isVerified = false;
+
+    @Column(nullable = false, length = 20)
+    private String role = "USER";
 }

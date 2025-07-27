@@ -9,7 +9,7 @@ public class UserBehaviorMapper {
     public UserBehaviorDto toDto(UserBehavior e) {
         return UserBehaviorDto.builder()
                 .id(e.getId())
-                .userId(e.getUserId().getId())
+                .userId(e.getUser().getId())
                 .action(e.getAction())
                 .targetId(e.getTargetId())
                 .createdAt(e.getCreatedAt())
@@ -19,7 +19,7 @@ public class UserBehaviorMapper {
     public UserBehavior toEntity(UserBehaviorDto dto, User user) {
         return UserBehavior.builder()
                 .id(dto.getId())
-                .userId(user)
+                .user(user)
                 .action(dto.getAction())
                 .targetId(dto.getTargetId())
                 .createdAt(dto.getCreatedAt())

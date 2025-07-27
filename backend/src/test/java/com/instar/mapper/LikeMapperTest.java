@@ -21,8 +21,8 @@ public class LikeMapperTest {
         LocalDateTime now = LocalDateTime.now();
         Like like = Like.builder()
                 .id(1)
-                .postId(post)
-                .userId(user)
+                .post(post)
+                .user(user)
                 .createdAt(now)
                 .build();
 
@@ -52,8 +52,8 @@ public class LikeMapperTest {
 
         assertNotNull(like);
         assertEquals(dto.getId(), like.getId());
-        assertEquals(post, like.getPostId());
-        assertEquals(user, like.getUserId());
+        assertEquals(post, like.getPost());
+        assertEquals(user, like.getUser());
         assertEquals(dto.getCreatedAt(), like.getCreatedAt());
         System.out.println("testDtoToEntity thành công");
     }

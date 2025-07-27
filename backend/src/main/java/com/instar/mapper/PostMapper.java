@@ -10,7 +10,7 @@ public class PostMapper {
     public PostDto toDto(Post e) {
         return PostDto.builder()
                 .id(e.getId())
-                .userId(e.getUserId().getId())
+                .userId(e.getUser().getId())
                 .content(e.getContent())
                 .imageUrl(e.getImageUrl())
                 .videoUrl(e.getVideoUrl())
@@ -23,7 +23,7 @@ public class PostMapper {
     public Post toEntity(PostDto dto, User user) {
         return Post.builder()
                 .id(dto.getId())
-                .userId(user)
+                .user(user)
                 .content(dto.getContent())
                 .imageUrl(dto.getImageUrl())
                 .videoUrl(dto.getVideoUrl())

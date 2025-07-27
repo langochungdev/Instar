@@ -1,5 +1,4 @@
 package com.instar.controller;
-
 import com.instar.dto.UserBehaviorDto;
 import com.instar.service.UserBehaviorService;
 import lombok.RequiredArgsConstructor;

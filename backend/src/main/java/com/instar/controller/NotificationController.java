@@ -1,5 +1,4 @@
 package com.instar.controller;
-
 import com.instar.dto.NotificationDto;
 import com.instar.service.NotificationService;
 import lombok.RequiredArgsConstructor;

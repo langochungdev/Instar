@@ -16,11 +16,11 @@ public class Follow {
 
     @ManyToOne
     @JoinColumn(nullable = false)
-    private User followerId;
+    private User follower;
 
     @ManyToOne
     @JoinColumn(nullable = false)
-    private User followingId;
+    private User following;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;

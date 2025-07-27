@@ -1,5 +1,4 @@
 package com.instar.util;
-
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 public class PasswordUtil {

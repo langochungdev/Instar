@@ -21,11 +21,11 @@ public class CommentMapperTest {
         LocalDateTime now = LocalDateTime.now();
         Comment comment = Comment.builder()
                 .id(1)
-                .postId(post)
-                .userId(user)
+                .post(post)
+                .user(user)
                 .content("Nội dung bình luận")
                 .createdAt(now)
-                .parentId(parent)
+                .parent(parent)
                 .build();
 
         CommentDto dto = mapper.toDto(comment);
@@ -59,9 +59,9 @@ public class CommentMapperTest {
 
         assertNotNull(entity);
         assertEquals(dto.getId(), entity.getId());
-        assertEquals(post, entity.getPostId());
-        assertEquals(user, entity.getUserId());
-        assertEquals(parent, entity.getParentId());
+        assertEquals(post, entity.getPost());
+        assertEquals(user, entity.getUser());
+        assertEquals(parent, entity.getParent());
         assertEquals(dto.getContent(), entity.getContent());
         assertEquals(dto.getCreatedAt(), entity.getCreatedAt());
         System.out.println("testDtoToEntity thành công");

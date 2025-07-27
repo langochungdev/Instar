@@ -10,22 +10,22 @@ public class CommentMapper {
     public CommentDto toDto(Comment e) {
         return CommentDto.builder()
                 .id(e.getId())
-                .postId(e.getPostId().getId())
-                .userId(e.getUserId().getId())
+                .postId(e.getPost().getId())
+                .userId(e.getUser().getId())
                 .content(e.getContent())
                 .createdAt(e.getCreatedAt())
-                .parentId(e.getParentId() != null ? e.getParentId().getId() : null)
+                .parentId(e.getParent() != null ? e.getParent().getId() : null)
                 .build();
     }
 
     public Comment toEntity(CommentDto dto, Post post, User user, Comment parent) {
         return Comment.builder()
                 .id(dto.getId())
-                .postId(post)
-                .userId(user)
+                .post(post)
+                .user(user)
                 .content(dto.getContent())
                 .createdAt(dto.getCreatedAt())
-                .parentId(parent)
+                .parent(parent)
                 .build();
     }
 }

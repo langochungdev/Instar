@@ -17,7 +17,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public List<NotificationDto> findByUserId(Integer userId) {
         return notificationRepository.findAll().stream()
-                .filter(n -> n.getUserId().getId().equals(userId))
+                .filter(n -> n.getUser().getId().equals(userId))
                 .map(notificationMapper::toDto)
                 .collect(Collectors.toList());
     }

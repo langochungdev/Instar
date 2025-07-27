@@ -16,11 +16,11 @@ public class Message {
 
     @ManyToOne
     @JoinColumn(nullable = false)
-    private User senderId;
+    private User sender;
 
     @ManyToOne
     @JoinColumn(nullable = false)
-    private User receiverId;
+    private User receiver;
 
     @Column(length = 500)
     private String content;

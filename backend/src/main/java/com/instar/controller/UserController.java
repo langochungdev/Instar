@@ -1,5 +1,4 @@
 package com.instar.controller;
-
 import com.instar.dto.AuthRequest;
 import com.instar.dto.AuthResponse;
 import com.instar.dto.ChangePasswordRequest;

@@ -1,5 +1,4 @@
 package com.instar.controller;
-
 import com.instar.dto.PostDto;
 import com.instar.service.PostService;
 import lombok.RequiredArgsConstructor;

@@ -1,5 +1,4 @@
 package com.instar.controller;
-
 import com.instar.dto.DeviceDto;
 import com.instar.service.DeviceService;
 import lombok.RequiredArgsConstructor;

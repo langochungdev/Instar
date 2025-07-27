@@ -2,6 +2,8 @@ package com.instar.util;
 
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -9,12 +11,21 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
-    private final long REFRESH_EXPIRATION = 604800000;
-    private final String SECRET = "instar-secret-key-2024-07-21-very-long-secret!";
-    private final long EXPIRATION = 86400000;
-    private final Key key = Keys.hmacShaKeyFor(SECRET.getBytes());
 
-    public String generateToken(String username) {
+    @Value("${jwt.secret}")
+    private String SECRET;
+
+    private Key key;
+
+    private final long REFRESH_EXPIRATION = 604800000; // 7 ngày
+    private final long EXPIRATION = 3600000; // 1 giờ
+
+    @PostConstruct
+    public void init() {
+        key = Keys.hmacShaKeyFor(SECRET.getBytes());
+    }
+
+    public String createToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
@@ -23,26 +34,7 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String extractUsername(String token) {
-        return Jwts.parser()                   // CHỈ DÙNG parser(), KHÔNG PHẢI parserBuilder()
-                .setSigningKey(key)
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
-    }
-
-    public boolean validateToken(String token) {
-        try {
-            Jwts.parser()
-                    .setSigningKey(key)
-                    .parseClaimsJws(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
-        }
-    }
-
-    public String generateRefreshToken(String username) {
+    public String createRefreshToken(String username) {
         return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
@@ -51,7 +43,28 @@ public class JwtUtil {
                 .compact();
     }
 
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
     public long getExpiration() {
         return EXPIRATION;
+    }
+
+    public String extractUsername(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .getSubject();
     }
 }
