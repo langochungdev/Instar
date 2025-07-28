@@ -2,7 +2,6 @@ CREATE DATABASE instar;
 --GO
 USE instar;
 --GO
-
 -- Bảng users
 CREATE TABLE users (
     id INT IDENTITY PRIMARY KEY,
@@ -40,7 +39,7 @@ CREATE TABLE comments (
     content NVARCHAR(255) NOT NULL,
     created_at DATETIME NOT NULL DEFAULT GETDATE(),
     parent_id INT NULL,
-    FOREIGN KEY (post_id) REFERENCES posts(id),
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (parent_id) REFERENCES comments(id)
 );
@@ -51,8 +50,8 @@ CREATE TABLE likes (
     post_id INT NOT NULL,
     user_id INT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT GETDATE(),
-    FOREIGN KEY (post_id) REFERENCES posts(id),
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) 
 );
 
 -- Bảng follows
@@ -62,7 +61,7 @@ CREATE TABLE follows (
     following_id INT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT GETDATE(),
     FOREIGN KEY (follower_id) REFERENCES users(id),
-    FOREIGN KEY (following_id) REFERENCES users(id)
+    FOREIGN KEY (following_id) REFERENCES users(id) 
 );
 
 -- Bảng saved_posts
@@ -72,7 +71,7 @@ CREATE TABLE saved_posts (
     post_id INT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT GETDATE(),
     FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (post_id) REFERENCES posts(id)
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
 );
 
 -- Bảng messages
@@ -121,6 +120,7 @@ CREATE TABLE user_behaviors (
     created_at DATETIME NOT NULL DEFAULT GETDATE(),
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
 
 -- mk 123 Bcrypt 
 INSERT INTO users (username, email, password, full_name, avatar_url, bio, created_at, is_active, is_verified, role) VALUES

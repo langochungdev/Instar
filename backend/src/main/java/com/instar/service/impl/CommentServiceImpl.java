@@ -1,16 +1,19 @@
 package com.instar.service.impl;
+
 import com.instar.dto.CommentDto;
 import com.instar.entity.Comment;
 import com.instar.entity.Post;
 import com.instar.entity.User;
-//import com.instar.exception.CustomException;
+import com.instar.exception.NoPermissionException;
 import com.instar.mapper.CommentMapper;
 import com.instar.repository.CommentRepository;
 import com.instar.repository.PostRepository;
 import com.instar.repository.UserRepository;
 import com.instar.service.CommentService;
+import com.instar.util.CurrentUserUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +34,12 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto create(CommentDto dto) {
+        Integer currentUserId = CurrentUserUtil.getCurrentUserId();
+        boolean admin = CurrentUserUtil.isAdmin();
+        if (!dto.getUserId().equals(currentUserId) && !admin) {
+            throw new NoPermissionException();
+        }
+
         Post post = postRepository.findById(dto.getPostId()).orElse(null);
         User user = userRepository.findById(dto.getUserId()).orElse(null);
         Comment parent = dto.getParentId() == null ? null : commentRepository.findById(dto.getParentId()).orElse(null);
@@ -42,7 +51,13 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentDto update(Integer id, CommentDto dto) {
         Comment e = commentRepository.findById(id).orElse(null);
-        if (e == null) return null;
+        Integer currentUserId = CurrentUserUtil.getCurrentUserId();
+        boolean admin = CurrentUserUtil.isAdmin();
+
+        if (e == null || (!e.getUser().getId().equals(currentUserId) && !admin)) {
+            throw new NoPermissionException();
+        }
+
         e.setContent(dto.getContent());
         e = commentRepository.save(e);
         return commentMapper.toDto(e);
@@ -50,6 +65,14 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void delete(Integer id) {
+        Comment e = commentRepository.findById(id).orElse(null);
+        Integer currentUserId = CurrentUserUtil.getCurrentUserId();
+        boolean admin = CurrentUserUtil.isAdmin();
+
+        if (e == null || (!e.getUser().getId().equals(currentUserId) && !admin)) {
+            throw new NoPermissionException();
+        }
+
         commentRepository.deleteById(id);
     }
 
@@ -63,6 +86,12 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto createReply(CommentDto dto) {
+        Integer currentUserId = CurrentUserUtil.getCurrentUserId();
+        boolean admin = CurrentUserUtil.isAdmin();
+        if (!dto.getUserId().equals(currentUserId) && !admin) {
+            throw new NoPermissionException();
+        }
+
         Comment parent = commentRepository.findById(dto.getParentId()).orElse(null);
         Post post = postRepository.findById(dto.getPostId()).orElse(null);
         User user = userRepository.findById(dto.getUserId()).orElse(null);
@@ -78,5 +107,4 @@ public class CommentServiceImpl implements CommentService {
                 .map(commentMapper::toDto)
                 .collect(Collectors.toList());
     }
-
 }

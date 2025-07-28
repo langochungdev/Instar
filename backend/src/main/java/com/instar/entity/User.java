@@ -33,7 +33,7 @@ public class User {
     private String bio;
 
     @Column(nullable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt  = LocalDateTime.now();
 
     private LocalDateTime lastLogin;
 

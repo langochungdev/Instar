@@ -3,9 +3,11 @@ import com.instar.dto.AuthRequest;
 import com.instar.dto.AuthResponse;
 import com.instar.dto.UserDto;
 import com.instar.entity.User;
+import com.instar.exception.NoPermissionException;
 import com.instar.mapper.UserMapper;
 import com.instar.repository.UserRepository;
 import com.instar.service.UserService;
+import com.instar.util.CurrentUserUtil;
 import com.instar.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,6 +32,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto create(UserDto dto) {
+        boolean admin = CurrentUserUtil.isAdmin();
+        if (!admin) {
+            throw new NoPermissionException();
+        }
         User e = userMapper.toEntity(dto);
         e = userRepository.save(e);
         return userMapper.toDto(e);
@@ -37,6 +43,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto update(Integer id, UserDto dto) {
+        Integer currentUserId = CurrentUserUtil.getCurrentUserId();
+        boolean admin = CurrentUserUtil.isAdmin();
+        if (!id.equals(currentUserId) && !admin) {
+            throw new NoPermissionException();
+        }
         User e = userRepository.findById(id).orElse(null);
         if (e == null) return null;
         e.setFullName(dto.getFullName());
@@ -52,28 +63,42 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(Integer id) {
+        Integer currentUserId = CurrentUserUtil.getCurrentUserId();
+        boolean admin = CurrentUserUtil.isAdmin();
+        if (!id.equals(currentUserId) && !admin) {
+            throw new NoPermissionException();
+        }
         userRepository.deleteById(id);
     }
 
     @Override
-    public List<UserDto> findAll() {
-        return userRepository.findAll().stream()
-                .map(userMapper::toDto)
-                .collect(Collectors.toList());
+    public List<User> findAll() {
+        boolean admin = CurrentUserUtil.isAdmin();
+        if (!admin) {
+            throw new NoPermissionException();
+        }
+        return userRepository.findAll();
     }
+
 
     @Override
     public UserDto findByUsername(String username) {
-        return userRepository.findAll().stream()
+        Integer currentUserId = CurrentUserUtil.getCurrentUserId();
+        boolean admin = CurrentUserUtil.isAdmin();
+        User user = userRepository.findAll().stream()
                 .filter(u -> u.getUsername().equals(username))
                 .findFirst()
-                .map(userMapper::toDto)
                 .orElse(null);
+        if (user == null) return null;
+        if (!user.getId().equals(currentUserId) && !admin) {
+            throw new NoPermissionException();
+        }
+        return userMapper.toDto(user);
     }
 
     @Override
-    public UserDto register(UserDto dto) {
-        User e = userMapper.toEntity(dto);
+    public UserDto register(User e) {
+        e.setPassword(passwordEncoder.encode(e.getPassword()));
         e = userRepository.save(e);
         return userMapper.toDto(e);
     }
@@ -96,16 +121,27 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void changePassword(Integer id, String oldPassword, String newPassword) {
+        Integer currentUserId = CurrentUserUtil.getCurrentUserId();
+        boolean admin = CurrentUserUtil.isAdmin();
+        if (!id.equals(currentUserId) && !admin) {
+            throw new NoPermissionException();
+        }
         User user = userRepository.findById(id).orElse(null);
-        if (!passwordEncoder.matches(oldPassword, user.getPassword())) return;
+        if (user == null) return;
+        if (!admin && !passwordEncoder.matches(oldPassword, user.getPassword())) return;
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
 
     @Override
     public void verifyAccount(Integer id, String code) {
+        Integer currentUserId = CurrentUserUtil.getCurrentUserId();
+        boolean admin = CurrentUserUtil.isAdmin();
+        if (!id.equals(currentUserId) && !admin) {
+            throw new NoPermissionException();
+        }
         User user = userRepository.findById(id).orElse(null);
-        // Ví dụ tạm thời bỏ qua check, chỉ xác thực
+        if (user == null) return;
         user.setIsVerified(true);
         userRepository.save(user);
     }

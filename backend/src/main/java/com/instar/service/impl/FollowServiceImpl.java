@@ -2,10 +2,12 @@ package com.instar.service.impl;
 import com.instar.dto.FollowDto;
 import com.instar.entity.Follow;
 import com.instar.entity.User;
+import com.instar.exception.NoPermissionException;
 import com.instar.mapper.FollowMapper;
 import com.instar.repository.FollowRepository;
 import com.instar.repository.UserRepository;
 import com.instar.service.FollowService;
+import com.instar.util.CurrentUserUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,11 @@ public class FollowServiceImpl implements FollowService {
 
     @Override
     public FollowDto follow(Integer followerId, Integer followingId) {
+        Integer currentUserId = CurrentUserUtil.getCurrentUserId();
+        boolean admin = CurrentUserUtil.isAdmin();
+        if (!followerId.equals(currentUserId) && !admin) {
+            throw new NoPermissionException();
+        }
         User follower = userRepository.findById(followerId).orElse(null);
         User following = userRepository.findById(followingId).orElse(null);
         Follow follow = Follow.builder()
@@ -34,6 +41,11 @@ public class FollowServiceImpl implements FollowService {
 
     @Override
     public void unfollow(Integer followerId, Integer followingId) {
+        Integer currentUserId = CurrentUserUtil.getCurrentUserId();
+        boolean admin = CurrentUserUtil.isAdmin();
+        if (!followerId.equals(currentUserId) && !admin) {
+            throw new NoPermissionException();
+        }
         followRepository.findAll().stream()
                 .filter(f -> f.getFollower().getId().equals(followerId) && f.getFollowing().getId().equals(followingId))
                 .findFirst()

@@ -1,19 +1,24 @@
 package com.instar.filter;
-import com.instar.util.JwtUtil;
-import com.instar.repository.UserRepository;
+
 import com.instar.entity.User;
+import com.instar.repository.UserRepository;
+import com.instar.security.CustomUserDetails;
+import com.instar.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import java.io.IOException;
+import java.util.List;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -30,17 +35,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws IOException, ServletException {
         String authorization = request.getHeader("Authorization");
-        System.out.println("Authorization header: " + authorization); // dòng này để log
+        System.out.println("Authorization header: " + authorization);
 
         String token = null;
         String username = null;
 
         if (authorization != null && authorization.startsWith("Bearer ")) {
             token = authorization.substring(7).trim();
-            System.out.println("Extracted token: " + token); // log token
             if (jwtUtil.validateToken(token)) {
                 username = jwtUtil.extractUsername(token);
-                System.out.println("Extracted username: " + username); // log username
             } else {
                 System.out.println("Token không hợp lệ hoặc đã hết hạn");
             }
@@ -49,11 +52,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             User user = userRepository.findByUsername(username).orElse(null);
             if (user != null) {
-                UserDetails userDetails = org.springframework.security.core.userdetails.User
-                        .withUsername(user.getUsername())
-                        .password(user.getPassword())
-                        .authorities("USER") // tuỳ chỉnh quyền nếu có
-                        .build();
+                UserDetails userDetails = new CustomUserDetails(
+                        user.getId(),
+                        user.getUsername(),
+                        user.getPassword(),
+                        user.getIsActive(),
+                        List.of(new SimpleGrantedAuthority(user.getRole()))
+                );
+                System.out.println("Đăng nhập thành công: username = " + user.getUsername() + ", role = " + user.getRole());
+
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails, null, userDetails.getAuthorities());

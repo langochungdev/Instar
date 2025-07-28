@@ -2,10 +2,12 @@ package com.instar.service.impl;
 import com.instar.dto.PostDto;
 import com.instar.entity.Post;
 import com.instar.entity.User;
+import com.instar.exception.NoPermissionException;
 import com.instar.mapper.PostMapper;
 import com.instar.repository.PostRepository;
 import com.instar.repository.UserRepository;
 import com.instar.service.PostService;
+import com.instar.util.CurrentUserUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -27,16 +29,31 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostDto create(PostDto dto) {
+        Integer currentUserId = CurrentUserUtil.getCurrentUserId();
+        boolean admin = CurrentUserUtil.isAdmin();
+        if (!dto.getUserId().equals(currentUserId) && !admin) {
+            throw new NoPermissionException();
+        }
         User user = userRepository.findById(dto.getUserId()).orElse(null);
         Post e = postMapper.toEntity(dto, user);
         e = postRepository.save(e);
         return postMapper.toDto(e);
     }
 
+
     @Override
     public PostDto update(Integer id, PostDto dto) {
         Post e = postRepository.findById(id).orElse(null);
-        if (e == null) return null;
+        Integer currentUserId = CurrentUserUtil.getCurrentUserId();
+        boolean admin = CurrentUserUtil.isAdmin();
+        if (e == null) {
+            System.out.println("Không tìm thấy bài viết id: " + id);
+        } else {
+            System.out.println("UserID chủ bài viết: " + e.getUser().getId());
+        }
+        if (e == null || (!e.getUser().getId().equals(currentUserId) && !admin)) {
+            throw new NoPermissionException();
+        }
         e.setContent(dto.getContent());
         e.setImageUrl(dto.getImageUrl());
         e.setVideoUrl(dto.getVideoUrl());
@@ -48,6 +65,12 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public void delete(Integer id) {
+        Post e = postRepository.findById(id).orElse(null);
+        Integer currentUserId = CurrentUserUtil.getCurrentUserId();
+        boolean admin = CurrentUserUtil.isAdmin();
+        if (e == null || (!e.getUser().getId().equals(currentUserId) && !admin)) {
+            throw new NoPermissionException();
+        }
         postRepository.deleteById(id);
     }
 
