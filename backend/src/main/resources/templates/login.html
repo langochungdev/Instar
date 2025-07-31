@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Test JWT Auth</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .block { margin-bottom: 32px; }
+        label { display: block; margin-top: 12px; }
+        input[type="text"] { width: 400px; }
+        button.copy { margin-left: 6px; }
+    </style>
+</head>
+<body>
+<div class="block">
+    <button onclick="login('admin', '123', 'a')">Đăng nhập ADMIN</button>
+    <label>AccessToken:
+        <input id="accessToken-a" type="text" readonly>
+        <button class="copy" onclick="copyToken('accessToken-a')">Copy</button>
+    </label>
+    <label>RefreshToken:
+        <input id="refreshToken-a" type="text" readonly>
+        <button class="copy" onclick="copyToken('refreshToken-a')">Copy</button>
+    </label>
+</div>
+<div class="block">
+    <button onclick="login('user', '123', 'b')">Đăng nhập USER</button>
+    <label>AccessToken:
+        <input id="accessToken-b" type="text" readonly>
+        <button class="copy" onclick="copyToken('accessToken-b')">Copy</button>
+    </label>
+    <label>RefreshToken:
+        <input id="refreshToken-b" type="text" readonly>
+        <button class="copy" onclick="copyToken('refreshToken-b')">Copy</button>
+    </label>
+</div>
+<script>
+    function login(username, password, key) {
+        fetch('http://localhost:8080/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('accessToken-' + key).value = data.accessToken || '';
+                document.getElementById('refreshToken-' + key).value = data.refreshToken || '';
+            })
+            .catch(err => {
+                document.getElementById('accessToken-' + key).value = 'Đăng nhập lỗi!';
+                document.getElementById('refreshToken-' + key).value = '';
+            });
+    }
+
+    function copyToken(inputId) {
+        const input = document.getElementById(inputId);
+        input.select();
+        input.setSelectionRange(0, 99999);
+        document.execCommand('copy');
+    }
+</script>
+</body>
+</html>

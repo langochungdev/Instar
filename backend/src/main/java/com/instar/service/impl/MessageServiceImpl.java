@@ -1,9 +1,12 @@
 package com.instar.service.impl;
+
 import com.instar.dto.MessageDto;
+import com.instar.entity.Chat;
 import com.instar.entity.Message;
 import com.instar.entity.User;
 import com.instar.exception.NoPermissionException;
 import com.instar.mapper.MessageMapper;
+import com.instar.repository.ChatRepository;
 import com.instar.repository.MessageRepository;
 import com.instar.repository.UserRepository;
 import com.instar.service.MessageService;
@@ -19,6 +22,7 @@ import java.util.stream.Collectors;
 public class MessageServiceImpl implements MessageService {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
+    private final ChatRepository chatRepository;
     private final MessageMapper messageMapper;
 
     @Override
@@ -29,11 +33,13 @@ public class MessageServiceImpl implements MessageService {
 //            throw new NoPermissionException();
 //        }
         User sender = userRepository.findById(dto.getSenderId()).orElse(null);
-        User receiver = userRepository.findById(dto.getReceiverId()).orElse(null);
+        Chat chat = chatRepository.findById(dto.getChatId()).orElse(null);
+
+        if (sender == null || chat == null) throw new NoPermissionException();
 
         Message e = Message.builder()
+                .chat(chat)
                 .sender(sender)
-                .receiver(receiver)
                 .content(dto.getContent())
                 .imageUrl(dto.getImageUrl())
                 .videoUrl(dto.getVideoUrl())
@@ -46,32 +52,11 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public List<MessageDto> getConversation(Integer userId1, Integer userId2) {
-        Integer currentUserId = CurrentUserUtil.getCurrentUserId();
-        boolean admin = CurrentUserUtil.isAdmin();
-        if ((!userId1.equals(currentUserId) && !userId2.equals(currentUserId)) && !admin) {
-            throw new NoPermissionException();
-        }
-        return messageRepository.findAll().stream()
-                .filter(m -> (
-                        (m.getSender().getId().equals(userId1) && m.getReceiver().getId().equals(userId2)) ||
-                                (m.getSender().getId().equals(userId2) && m.getReceiver().getId().equals(userId1))
-                ))
-                .map(messageMapper::toDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<MessageDto> getConversations(Integer userId) {
-        Integer currentUserId = CurrentUserUtil.getCurrentUserId();
-        boolean admin = CurrentUserUtil.isAdmin();
-        if (!userId.equals(currentUserId) && !admin) {
-            throw new NoPermissionException();
-        }
-        return messageRepository.findAll().stream()
-                .filter(m -> m.getSender().getId().equals(userId) || m.getReceiver().getId().equals(userId))
-                .map(messageMapper::toDto)
-                .collect(Collectors.toList());
+    public List<MessageDto> getConversations(Integer chatId) {
+        Chat chat = chatRepository.findById(chatId).orElse(null);
+        if (chat == null) throw new NoPermissionException();
+        return messageRepository.findByChatIdOrderByCreatedAtAsc(chatId)
+                .stream().map(messageMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
@@ -79,9 +64,7 @@ public class MessageServiceImpl implements MessageService {
         Message e = messageRepository.findById(messageId).orElse(null);
         Integer currentUserId = CurrentUserUtil.getCurrentUserId();
         boolean admin = CurrentUserUtil.isAdmin();
-        if (e == null || (!e.getReceiver().getId().equals(currentUserId) && !admin)) {
-            throw new NoPermissionException();
-        }
+        if (e == null) throw new NoPermissionException();
         e.setIsRead(true);
         messageRepository.save(e);
     }

@@ -1,4 +1,5 @@
 package com.instar.entity;
+
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -8,32 +9,32 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "Messages")
+@Table(name = "messages")
 public class Message {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(nullable = false)
-    private User sender;
+    @JoinColumn(name = "chat_id", nullable = false)
+    private Chat chat;
 
     @ManyToOne
-    @JoinColumn(nullable = false)
-    private User receiver;
+    @JoinColumn(name = "sender_id", nullable = false)
+    private User sender;
 
     @Column(length = 500)
     private String content;
 
-    @Column(length = 255)
+    @Column(name = "image_url", length = 255)
     private String imageUrl;
 
-    @Column(length = 255)
+    @Column(name = "video_url", length = 255)
     private String videoUrl;
 
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+    @Column(name = "is_read", nullable = false)
     private Boolean isRead = false;
 }

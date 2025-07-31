@@ -18,6 +18,26 @@ CREATE TABLE users (
     role NVARCHAR(20) NOT NULL DEFAULT 'USER'
 );
 
+-- Bảng chats: lưu thông tin phòng chat (cá nhân hoặc nhóm)
+CREATE TABLE chats (
+    id INT IDENTITY PRIMARY KEY,
+    chat_name NVARCHAR(100) NULL,
+    is_group BIT NOT NULL DEFAULT 0,
+    created_by INT NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (created_by) REFERENCES users(id)
+);
+
+-- Bảng chat_users: liên kết user và phòng chat, quản lý thành viên group
+CREATE TABLE chat_users (
+    chat_id INT NOT NULL,
+    user_id INT NOT NULL,
+    is_admin BIT NOT NULL DEFAULT 0,
+    PRIMARY KEY (chat_id, user_id),
+    FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 -- Bảng posts
 CREATE TABLE posts (
     id INT IDENTITY PRIMARY KEY,
@@ -74,18 +94,18 @@ CREATE TABLE saved_posts (
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
 );
 
--- Bảng messages
+-- Bảng messages: sửa lại để hỗ trợ chat group, chat 1-1 (liên kết với chats)
 CREATE TABLE messages (
     id INT IDENTITY PRIMARY KEY,
+    chat_id INT NOT NULL,
     sender_id INT NOT NULL,
-    receiver_id INT NOT NULL,
     content NVARCHAR(500) NULL,
     image_url NVARCHAR(255) NULL,
     video_url NVARCHAR(255) NULL,
     created_at DATETIME NOT NULL DEFAULT GETDATE(),
     is_read BIT NOT NULL DEFAULT 0,
-    FOREIGN KEY (sender_id) REFERENCES users(id),
-    FOREIGN KEY (receiver_id) REFERENCES users(id)
+    FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE,
+    FOREIGN KEY (sender_id) REFERENCES users(id)
 );
 
 -- Bảng devices
@@ -122,7 +142,6 @@ CREATE TABLE user_behaviors (
 );
 
 
--- mk 123 Bcrypt 
 INSERT INTO users (username, email, password, full_name, avatar_url, bio, created_at, is_active, is_verified, role) VALUES
 ('admin', 'admin@email.com', '$2a$12$.NALdJeDlmXUugMWI2AniO5CbhgsPWm9gDkWxZPA4nj/t118ieHRS', N'La Hung Admin', NULL, N'Chào mọi người!', GETDATE(), 1, 1, 'ADMIN'),
 ('user', 'user@email.com', '$2a$12$.NALdJeDlmXUugMWI2AniO5CbhgsPWm9gDkWxZPA4nj/t118ieHRS', N'La Hung user', NULL, N'Yêu du lịch', GETDATE(), 1, 1, 'USER'),
@@ -135,7 +154,26 @@ INSERT INTO users (username, email, password, full_name, avatar_url, bio, create
 ('ivy', 'ivy@email.com', '$2a$12$.NALdJeDlmXUugMWI2AniO5CbhgsPWm9gDkWxZPA4nj/t118ieHRS', N'Ivy Hồ', NULL, N'Tôi là Ivy', GETDATE(), 1, 1, 'USER'),
 ('jack', 'jack@email.com', '$2a$12$.NALdJeDlmXUugMWI2AniO5CbhgsPWm9gDkWxZPA4nj/t118ieHRS', N'Jack Nguyễn', NULL, NULL, GETDATE(), 1, 1, 'USER');
 
--- Insert posts
+INSERT INTO chats (chat_name, is_group, created_by, created_at) VALUES
+(NULL, 0, 1, GETDATE()),
+(NULL, 0, 2, GETDATE()),
+(N'Nhóm bạn thân', 1, 1, GETDATE()),
+(N'Dự án Instar', 1, 4, GETDATE());
+
+INSERT INTO chat_users (chat_id, user_id, is_admin) VALUES
+(1, 1, 0),
+(1, 2, 0),
+(2, 2, 0),
+(2, 3, 0),
+(3, 1, 1),
+(3, 2, 0),
+(3, 4, 0),
+(3, 5, 0),
+(4, 4, 1),
+(4, 5, 0),
+(4, 6, 0),
+(4, 7, 0);
+
 INSERT INTO posts (user_id, content, image_url, video_url, created_at, is_deleted) VALUES
 (1, N'Bài đầu tiên của mình!', 'img1.jpg', NULL, GETDATE(), 0),
 (2, N'Trời hôm nay thật đẹp', 'img2.jpg', NULL, GETDATE(), 0),
@@ -148,7 +186,6 @@ INSERT INTO posts (user_id, content, image_url, video_url, created_at, is_delete
 (9, N'Bức ảnh kỷ niệm', 'img9.jpg', NULL, GETDATE(), 0),
 (10, N'Happy weekend!', 'img10.jpg', NULL, GETDATE(), 0);
 
--- Insert comments
 INSERT INTO comments (post_id, user_id, content, created_at) VALUES
 (1, 2, N'Chào bạn!', GETDATE()),
 (1, 3, N'Tuyệt vời quá!', GETDATE()),
@@ -161,35 +198,32 @@ INSERT INTO comments (post_id, user_id, content, created_at) VALUES
 (7, 9, N'Nhóm này vui ghê', GETDATE()),
 (8, 10, N'Món gì ngon vậy?', GETDATE());
 
--- Insert likes
 INSERT INTO likes (post_id, user_id, created_at) VALUES
 (1, 2, GETDATE()), (1, 3, GETDATE()), (2, 1, GETDATE()), (2, 4, GETDATE()), (3, 5, GETDATE()),
 (4, 6, GETDATE()), (5, 7, GETDATE()), (6, 8, GETDATE()), (7, 9, GETDATE()), (8, 10, GETDATE());
 
--- Insert follows
 INSERT INTO follows (follower_id, following_id, created_at) VALUES
 (1, 2, GETDATE()), (2, 3, GETDATE()), (3, 4, GETDATE()), (4, 5, GETDATE()), (5, 6, GETDATE()),
 (6, 7, GETDATE()), (7, 8, GETDATE()), (8, 9, GETDATE()), (9, 10, GETDATE()), (10, 1, GETDATE());
 
--- Insert saved_posts
 INSERT INTO saved_posts (user_id, post_id, created_at) VALUES
 (1, 2, GETDATE()), (2, 3, GETDATE()), (3, 4, GETDATE()), (4, 5, GETDATE()), (5, 6, GETDATE()),
 (6, 7, GETDATE()), (7, 8, GETDATE()), (8, 9, GETDATE()), (9, 10, GETDATE()), (10, 1, GETDATE());
 
--- Insert messages
-INSERT INTO messages (sender_id, receiver_id, content, created_at, is_read) VALUES
-(1, 2, N'Hello Bob!', GETDATE(), 1),
-(2, 1, N'Hi Alice!', GETDATE(), 1),
-(3, 4, N'Chào bạn', GETDATE(), 0),
-(4, 5, N'Bạn rảnh không?', GETDATE(), 0),
-(5, 6, N'Đi ăn không?', GETDATE(), 0),
-(6, 7, N'Có vé xem phim không?', GETDATE(), 0),
-(7, 8, N'Làm bài chưa?', GETDATE(), 0),
-(8, 9, N'Chúc ngủ ngon', GETDATE(), 0),
-(9, 10, N'Rảnh cafe không?', GETDATE(), 0),
-(10, 1, N'Sáng mai đi học nha', GETDATE(), 0);
+INSERT INTO messages (chat_id, sender_id, content, image_url, video_url, created_at, is_read) VALUES
+(1, 1, N'Hello user!', NULL, NULL, GETDATE(), 1),
+(1, 2, N'Chào admin!', NULL, NULL, GETDATE(), 1),
+(2, 2, N'Hello user0!', NULL, NULL, GETDATE(), 0),
+(2, 3, N'Chào user!', NULL, NULL, GETDATE(), 0),
+(3, 1, N'Chào cả nhóm!', NULL, NULL, GETDATE(), 0),
+(3, 2, N'Hello mọi người!', NULL, NULL, GETDATE(), 0),
+(3, 4, N'Có ai đi cafe không?', NULL, NULL, GETDATE(), 0),
+(3, 5, N'Đi chứ!', NULL, NULL, GETDATE(), 0),
+(4, 4, N'Dự án Instar tiến độ tới đâu rồi?', NULL, NULL, GETDATE(), 0),
+(4, 5, N'Mình mới làm xong phần backend!', NULL, NULL, GETDATE(), 0),
+(4, 6, N'Frontend ok chưa mọi người?', NULL, NULL, GETDATE(), 0),
+(4, 7, N'Mai họp nhé', NULL, NULL, GETDATE(), 0);
 
--- Insert devices
 INSERT INTO devices (user_id, device_token, device_name, last_login, is_active) VALUES
 (1, 'token1', N'iPhone 13', GETDATE(), 1),
 (2, 'token2', N'Galaxy S21', GETDATE(), 1),
@@ -202,7 +236,6 @@ INSERT INTO devices (user_id, device_token, device_name, last_login, is_active) 
 (9, 'token9', N'Asus Zenbook', GETDATE(), 1),
 (10, 'token10', N'Lenovo Yoga', GETDATE(), 1);
 
--- Insert notifications
 INSERT INTO notifications (user_id, type, message, link, is_read, created_at) VALUES
 (1, 'like', N'Bob đã thích bài viết của bạn', NULL, 0, GETDATE()),
 (2, 'comment', N'Alice đã bình luận bài viết của bạn', NULL, 0, GETDATE()),
@@ -215,7 +248,6 @@ INSERT INTO notifications (user_id, type, message, link, is_read, created_at) VA
 (9, 'follow', N'Jack vừa theo dõi bạn', NULL, 0, GETDATE()),
 (10, 'like', N'Alice đã thích bài viết của bạn', NULL, 0, GETDATE());
 
--- Insert user_behaviors
 INSERT INTO user_behaviors (user_id, action, target_id, created_at) VALUES
 (1, 'view_post', 2, GETDATE()),
 (2, 'like_post', 3, GETDATE()),
@@ -227,3 +259,4 @@ INSERT INTO user_behaviors (user_id, action, target_id, created_at) VALUES
 (8, 'like_post', 9, GETDATE()),
 (9, 'follow_user', 10, GETDATE()),
 (10, 'view_post', 1, GETDATE());
+

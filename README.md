@@ -1,12 +1,14 @@
 # Instar
+
 Project manager notion: https://www.notion.so/Instar-2378407b6502808c8cbed8fe61c408e1?source=copy_link
-# 📸 Dự Án Clone Instagram – Spring Boot RESTful API + ReactJS
+
+# 📸 Dự Án Clone Instagram – Spring Boot RESTful API + VueJS
 
 ## **Mục tiêu dự án**
 
 - Xây dựng một hệ thống clone Instagram đầy đủ chức năng: đăng ký, đăng nhập đa thiết bị, đăng bài, like, share, comment, lưu, nhắn tin realtime, gọi video/WebRTC, phân tích hành vi, gợi ý bài viết.
 - Backend sử dụng **Spring Boot** (JDK 21, Maven, SQL Server).
-- Frontend sử dụng **ReactJS** + Bootstrap.
+- Frontend sử dụng **VueJS** + Bootstrap.
 - Tối ưu cho học tập, triển khai thực tế trên Ubuntu server, có CI/CD, kiểm thử tự động với JUnit.
 
 ---
@@ -32,7 +34,7 @@ Project manager notion: https://www.notion.so/Instar-2378407b6502808c8cbed8fe61c
 - **Realtime:** WebSocket cho nhắn tin, signaling server cho WebRTC.
 - **Database:** SQL Server, thiết kế chuẩn hóa, quan hệ chặt chẽ giữa các bảng.
 
-### **2. Frontend (ReactJS + Bootstrap)**
+### **2. Frontend (VueJS + Bootstrap)**
 
 - **Layout:** Clone gần giống Instagram, responsive, UI/UX tối ưu.
 - **Giao tiếp backend:** Sử dụng Axios fetch API, JWT lưu ở localStorage.
@@ -147,7 +149,7 @@ Project manager notion: https://www.notion.so/Instar-2378407b6502808c8cbed8fe61c
 - Khởi tạo project Spring Boot (Maven, JDK 21, SQL Server).
 - Tạo cấu trúc thư mục theo chuẩn.
 - Thêm dependency: Spring Data JPA, Security, JWT, WebSocket, Lombok, JUnit.
-- Khởi tạo ReactJS, cấu hình Bootstrap, cài đặt Axios.
+- Khởi tạo VueJS, cấu hình Bootstrap, cài đặt Axios.
 
 ### **2. Xây dựng từng module backend**
 
@@ -185,7 +187,7 @@ Project manager notion: https://www.notion.so/Instar-2378407b6502808c8cbed8fe61c
 ## **Yêu cầu công nghệ**
 
 - **Backend:** Spring Boot (JDK 21), Maven, SQL Server, WebSocket, JWT, JUnit.
-- **Frontend:** ReactJS, Bootstrap, Axios, WebRTC.
+- **Frontend:** VueJS, Bootstrap, Axios, WebRTC.
 - **DevOps:** Docker, Github, CI/CD, Ubuntu, nginx.
 
 ---

@@ -108,8 +108,8 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUsername(request.getUsername()).orElse(null);
         if (user == null) throw new RuntimeException("User không tồn tại!");
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) throw new RuntimeException("Sai mật khẩu!");
-        String token = jwtUtil.createToken(user.getUsername());
-        String refreshToken = jwtUtil.createRefreshToken(user.getUsername());
+        String token = jwtUtil.createToken(user.getUsername(), String.valueOf(user.getId()), user.getRole());
+        String refreshToken = jwtUtil.createRefreshToken(user.getUsername(), String.valueOf(user.getId()), user.getRole());
         long expiresIn = jwtUtil.getExpiration();
         return AuthResponse.builder()
                 .accessToken(token)

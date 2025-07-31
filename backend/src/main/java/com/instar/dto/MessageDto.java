@@ -8,8 +8,8 @@ import java.time.LocalDateTime;
 @Builder
 public class MessageDto {
     private Integer id;
+    private Integer chatId;
     private Integer senderId;
-    private Integer receiverId;
     private String content;
     private String imageUrl;
     private String videoUrl;

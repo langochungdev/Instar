@@ -1,5 +1,4 @@
 package com.instar.filter;
-
 import com.instar.entity.User;
 import com.instar.repository.UserRepository;
 import com.instar.security.CustomUserDetails;
@@ -16,13 +15,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
 import java.util.List;
 
 @Component
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
+public class JwtAuthFilter extends OncePerRequestFilter { // chạy filter 1 lần mỗi request
     @Autowired
     private JwtUtil jwtUtil;
 
@@ -34,36 +31,41 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws IOException, ServletException {
+        //authorization phần quyền
         String authorization = request.getHeader("Authorization");
-        System.out.println("Authorization header: " + authorization);
-
         String token = null;
-        String username = null;
+        String userId = null;
 
+        // xác thực user, authorization phân quyền
         if (authorization != null && authorization.startsWith("Bearer ")) {
+            System.out.println("Authorization header: " + authorization);
             token = authorization.substring(7).trim();
             if (jwtUtil.validateToken(token)) {
-                username = jwtUtil.extractUsername(token);
+                userId = jwtUtil.extractUserId(token);
             } else {
                 System.out.println("Token không hợp lệ hoặc đã hết hạn");
             }
         }
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            User user = userRepository.findByUsername(username).orElse(null);
+        if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            User user = userRepository.findById(Integer.valueOf(userId)).orElse(null);
             if (user != null) {
                 UserDetails userDetails = new CustomUserDetails(
                         user.getId(),
                         user.getUsername(),
                         user.getPassword(),
                         user.getIsActive(),
-                        List.of(new SimpleGrantedAuthority(user.getRole()))
+                        List.of(new SimpleGrantedAuthority(user.getRole())) // chứa tất cả role
                 );
-                System.out.println("Đăng nhập thành công: username = " + user.getUsername() + ", role = " + user.getRole());
+                System.out.println("request: username = " + user.getUsername() + ", role = " + user.getRole());
 
                 UsernamePasswordAuthenticationToken authenticationToken =
                         new UsernamePasswordAuthenticationToken(
-                                userDetails, null, userDetails.getAuthorities());
+                                userDetails,
+                                null,
+                                userDetails.getAuthorities() // lấy quyền
+                        );
+                //lấy thông tin từ request nhét vào object securitycontext để chặn ip spam..
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
