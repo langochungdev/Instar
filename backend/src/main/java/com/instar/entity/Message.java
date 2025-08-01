@@ -26,12 +26,6 @@ public class Message {
     @Column(length = 500)
     private String content;
 
-    @Column(name = "image_url", length = 255)
-    private String imageUrl;
-
-    @Column(name = "video_url", length = 255)
-    private String videoUrl;
-
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 

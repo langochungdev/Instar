@@ -55,8 +55,6 @@ public class PostServiceImpl implements PostService {
             throw new NoPermissionException();
         }
         e.setContent(dto.getContent());
-        e.setImageUrl(dto.getImageUrl());
-        e.setVideoUrl(dto.getVideoUrl());
         e.setUpdatedAt(dto.getUpdatedAt());
         e.setIsDeleted(dto.getIsDeleted());
         e = postRepository.save(e);

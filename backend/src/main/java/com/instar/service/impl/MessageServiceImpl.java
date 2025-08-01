@@ -27,11 +27,11 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public MessageDto send(MessageDto dto) {
-//        Integer currentUserId = CurrentUserUtil.getCurrentUserId();
-//        boolean admin = CurrentUserUtil.isAdmin();
-//        if (!dto.getSenderId().equals(currentUserId) && !admin) {
-//            throw new NoPermissionException();
-//        }
+        // Integer currentUserId = CurrentUserUtil.getCurrentUserId();
+        // boolean admin = CurrentUserUtil.isAdmin();
+        // if (!dto.getSenderId().equals(currentUserId) && !admin) {
+        //     throw new NoPermissionException();
+        // }
         User sender = userRepository.findById(dto.getSenderId()).orElse(null);
         Chat chat = chatRepository.findById(dto.getChatId()).orElse(null);
 
@@ -41,8 +41,6 @@ public class MessageServiceImpl implements MessageService {
                 .chat(chat)
                 .sender(sender)
                 .content(dto.getContent())
-                .imageUrl(dto.getImageUrl())
-                .videoUrl(dto.getVideoUrl())
                 .createdAt(LocalDateTime.now())
                 .isRead(false)
                 .build();

@@ -14,8 +14,6 @@ public class MessageMapper {
                 .chatId(e.getChat().getId())
                 .senderId(e.getSender().getId())
                 .content(e.getContent())
-                .imageUrl(e.getImageUrl())
-                .videoUrl(e.getVideoUrl())
                 .createdAt(e.getCreatedAt())
                 .isRead(e.getIsRead())
                 .build();
@@ -27,8 +25,6 @@ public class MessageMapper {
                 .chat(chat)
                 .sender(sender)
                 .content(dto.getContent())
-                .imageUrl(dto.getImageUrl())
-                .videoUrl(dto.getVideoUrl())
                 .createdAt(dto.getCreatedAt())
                 .isRead(dto.getIsRead())
                 .build();

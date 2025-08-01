@@ -18,7 +18,6 @@ CREATE TABLE users (
     role NVARCHAR(20) NOT NULL DEFAULT 'USER'
 );
 
--- Bảng chats: lưu thông tin phòng chat (cá nhân hoặc nhóm)
 CREATE TABLE chats (
     id INT IDENTITY PRIMARY KEY,
     chat_name NVARCHAR(100) NULL,
@@ -28,7 +27,6 @@ CREATE TABLE chats (
     FOREIGN KEY (created_by) REFERENCES users(id)
 );
 
--- Bảng chat_users: liên kết user và phòng chat, quản lý thành viên group
 CREATE TABLE chat_users (
     chat_id INT NOT NULL,
     user_id INT NOT NULL,
@@ -38,20 +36,45 @@ CREATE TABLE chat_users (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Bảng posts
+CREATE TABLE messages (
+    id INT IDENTITY PRIMARY KEY,
+    chat_id INT NOT NULL,
+    sender_id INT NOT NULL,
+    content NVARCHAR(500) NULL,
+    created_at DATETIME NOT NULL DEFAULT GETDATE(),
+    is_read BIT NOT NULL DEFAULT 0,
+    FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE,
+    FOREIGN KEY (sender_id) REFERENCES users(id)
+);
+
+CREATE TABLE message_attachments (
+    id INT IDENTITY PRIMARY KEY,
+    message_id INT NOT NULL,
+    file_url NVARCHAR(255) NOT NULL,
+    file_type NVARCHAR(50) NOT NULL,   -- 'image', 'video', 'pdf', 'other'
+    FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE
+);
+
+-- Bảng posts giữ thông tin bài đăng cơ bản
 CREATE TABLE posts (
     id INT IDENTITY PRIMARY KEY,
     user_id INT NOT NULL,
     content NVARCHAR(500) NULL,
-    image_url NVARCHAR(255) NULL,
-    video_url NVARCHAR(255) NULL,
     created_at DATETIME NOT NULL DEFAULT GETDATE(),
     updated_at DATETIME NULL,
     is_deleted BIT NOT NULL DEFAULT 0,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- Bảng comments
+-- Bảng post_media lưu file ảnh/video liên quan tới bài đăng
+CREATE TABLE post_media (
+    id INT IDENTITY PRIMARY KEY,
+    post_id INT NOT NULL,
+    media_url NVARCHAR(255) NOT NULL,
+    media_type NVARCHAR(50) NOT NULL, -- 'image' hoặc 'video'
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
+);
+
 CREATE TABLE comments (
     id INT IDENTITY PRIMARY KEY,
     post_id INT NOT NULL,
@@ -64,7 +87,6 @@ CREATE TABLE comments (
     FOREIGN KEY (parent_id) REFERENCES comments(id)
 );
 
--- Bảng likes
 CREATE TABLE likes (
     id INT IDENTITY PRIMARY KEY,
     post_id INT NOT NULL,
@@ -74,7 +96,6 @@ CREATE TABLE likes (
     FOREIGN KEY (user_id) REFERENCES users(id) 
 );
 
--- Bảng follows
 CREATE TABLE follows (
     id INT IDENTITY PRIMARY KEY,
     follower_id INT NOT NULL,
@@ -84,7 +105,6 @@ CREATE TABLE follows (
     FOREIGN KEY (following_id) REFERENCES users(id) 
 );
 
--- Bảng saved_posts
 CREATE TABLE saved_posts (
     id INT IDENTITY PRIMARY KEY,
     user_id INT NOT NULL,
@@ -94,21 +114,7 @@ CREATE TABLE saved_posts (
     FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE
 );
 
--- Bảng messages: sửa lại để hỗ trợ chat group, chat 1-1 (liên kết với chats)
-CREATE TABLE messages (
-    id INT IDENTITY PRIMARY KEY,
-    chat_id INT NOT NULL,
-    sender_id INT NOT NULL,
-    content NVARCHAR(500) NULL,
-    image_url NVARCHAR(255) NULL,
-    video_url NVARCHAR(255) NULL,
-    created_at DATETIME NOT NULL DEFAULT GETDATE(),
-    is_read BIT NOT NULL DEFAULT 0,
-    FOREIGN KEY (chat_id) REFERENCES chats(id) ON DELETE CASCADE,
-    FOREIGN KEY (sender_id) REFERENCES users(id)
-);
 
--- Bảng devices
 CREATE TABLE devices (
     id INT IDENTITY PRIMARY KEY,
     user_id INT NOT NULL,
@@ -119,7 +125,6 @@ CREATE TABLE devices (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- Bảng notifications
 CREATE TABLE notifications (
     id INT IDENTITY PRIMARY KEY,
     user_id INT NOT NULL,
@@ -131,7 +136,6 @@ CREATE TABLE notifications (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
--- Bảng user_behaviors
 CREATE TABLE user_behaviors (
     id INT IDENTITY PRIMARY KEY,
     user_id INT NOT NULL,
@@ -141,7 +145,7 @@ CREATE TABLE user_behaviors (
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-
+-- USERS
 INSERT INTO users (username, email, password, full_name, avatar_url, bio, created_at, is_active, is_verified, role) VALUES
 ('admin', 'admin@email.com', '$2a$12$.NALdJeDlmXUugMWI2AniO5CbhgsPWm9gDkWxZPA4nj/t118ieHRS', N'La Hung Admin', NULL, N'Chào mọi người!', GETDATE(), 1, 1, 'ADMIN'),
 ('user', 'user@email.com', '$2a$12$.NALdJeDlmXUugMWI2AniO5CbhgsPWm9gDkWxZPA4nj/t118ieHRS', N'La Hung user', NULL, N'Yêu du lịch', GETDATE(), 1, 1, 'USER'),
@@ -154,12 +158,14 @@ INSERT INTO users (username, email, password, full_name, avatar_url, bio, create
 ('ivy', 'ivy@email.com', '$2a$12$.NALdJeDlmXUugMWI2AniO5CbhgsPWm9gDkWxZPA4nj/t118ieHRS', N'Ivy Hồ', NULL, N'Tôi là Ivy', GETDATE(), 1, 1, 'USER'),
 ('jack', 'jack@email.com', '$2a$12$.NALdJeDlmXUugMWI2AniO5CbhgsPWm9gDkWxZPA4nj/t118ieHRS', N'Jack Nguyễn', NULL, NULL, GETDATE(), 1, 1, 'USER');
 
+-- CHATS
 INSERT INTO chats (chat_name, is_group, created_by, created_at) VALUES
 (NULL, 0, 1, GETDATE()),
 (NULL, 0, 2, GETDATE()),
 (N'Nhóm bạn thân', 1, 1, GETDATE()),
 (N'Dự án Instar', 1, 4, GETDATE());
 
+-- CHAT_USERS
 INSERT INTO chat_users (chat_id, user_id, is_admin) VALUES
 (1, 1, 0),
 (1, 2, 0),
@@ -174,18 +180,37 @@ INSERT INTO chat_users (chat_id, user_id, is_admin) VALUES
 (4, 6, 0),
 (4, 7, 0);
 
-INSERT INTO posts (user_id, content, image_url, video_url, created_at, is_deleted) VALUES
-(1, N'Bài đầu tiên của mình!', 'img1.jpg', NULL, GETDATE(), 0),
-(2, N'Trời hôm nay thật đẹp', 'img2.jpg', NULL, GETDATE(), 0),
-(3, N'Check-in Đà Lạt', 'img3.jpg', NULL, GETDATE(), 0),
-(4, N'Góc học tập của mình', 'img4.jpg', NULL, GETDATE(), 0),
-(5, N'Tôi yêu sách', 'img5.jpg', NULL, GETDATE(), 0),
-(6, N'Đi biển vui quá', 'img6.jpg', NULL, GETDATE(), 0),
-(7, N'Chill cùng bạn bè', 'img7.jpg', NULL, GETDATE(), 0),
-(8, N'Hôm nay ăn gì nhỉ?', 'img8.jpg', NULL, GETDATE(), 0),
-(9, N'Bức ảnh kỷ niệm', 'img9.jpg', NULL, GETDATE(), 0),
-(10, N'Happy weekend!', 'img10.jpg', NULL, GETDATE(), 0);
+-- POSTS
+INSERT INTO posts (user_id, content, created_at, is_deleted) VALUES
+(1, N'Bài đầu tiên của mình!', GETDATE(), 0),
+(2, N'Trời hôm nay thật đẹp', GETDATE(), 0),
+(3, N'Check-in Đà Lạt', GETDATE(), 0),
+(4, N'Góc học tập của mình', GETDATE(), 0),
+(5, N'Tôi yêu sách', GETDATE(), 0),
+(6, N'Đi biển vui quá', GETDATE(), 0),
+(7, N'Chill cùng bạn bè', GETDATE(), 0),
+(8, N'Hôm nay ăn gì nhỉ?', GETDATE(), 0),
+(9, N'Bức ảnh kỷ niệm', GETDATE(), 0),
+(10, N'Happy weekend!', GETDATE(), 0);
 
+-- POST_MEDIA
+INSERT INTO post_media (post_id, media_url, media_type) VALUES
+(1, 'img1.jpg', 'image'),
+(2, 'img2.jpg', 'image'),
+(3, 'img3.jpg', 'image'),
+(4, 'img4.jpg', 'image'),
+(5, 'img5.jpg', 'image'),
+(6, 'img6.jpg', 'image'),
+(7, 'img7.jpg', 'image'),
+(8, 'img8.jpg', 'image'),
+(9, 'img9.jpg', 'image'),
+(10, 'img10.jpg', 'image'),
+(3, 'video1.mp4', 'video'),
+(4, 'video2.mp4', 'video'),
+(5, 'img5_1.jpg', 'image'),
+(5, 'img5_2.jpg', 'image');
+
+-- COMMENTS
 INSERT INTO comments (post_id, user_id, content, created_at) VALUES
 (1, 2, N'Chào bạn!', GETDATE()),
 (1, 3, N'Tuyệt vời quá!', GETDATE()),
@@ -198,32 +223,45 @@ INSERT INTO comments (post_id, user_id, content, created_at) VALUES
 (7, 9, N'Nhóm này vui ghê', GETDATE()),
 (8, 10, N'Món gì ngon vậy?', GETDATE());
 
+-- LIKES
 INSERT INTO likes (post_id, user_id, created_at) VALUES
 (1, 2, GETDATE()), (1, 3, GETDATE()), (2, 1, GETDATE()), (2, 4, GETDATE()), (3, 5, GETDATE()),
 (4, 6, GETDATE()), (5, 7, GETDATE()), (6, 8, GETDATE()), (7, 9, GETDATE()), (8, 10, GETDATE());
 
+-- FOLLOWS
 INSERT INTO follows (follower_id, following_id, created_at) VALUES
 (1, 2, GETDATE()), (2, 3, GETDATE()), (3, 4, GETDATE()), (4, 5, GETDATE()), (5, 6, GETDATE()),
 (6, 7, GETDATE()), (7, 8, GETDATE()), (8, 9, GETDATE()), (9, 10, GETDATE()), (10, 1, GETDATE());
 
+-- SAVED_POSTS
 INSERT INTO saved_posts (user_id, post_id, created_at) VALUES
 (1, 2, GETDATE()), (2, 3, GETDATE()), (3, 4, GETDATE()), (4, 5, GETDATE()), (5, 6, GETDATE()),
 (6, 7, GETDATE()), (7, 8, GETDATE()), (8, 9, GETDATE()), (9, 10, GETDATE()), (10, 1, GETDATE());
 
-INSERT INTO messages (chat_id, sender_id, content, image_url, video_url, created_at, is_read) VALUES
-(1, 1, N'Hello user!', NULL, NULL, GETDATE(), 1),
-(1, 2, N'Chào admin!', NULL, NULL, GETDATE(), 1),
-(2, 2, N'Hello user0!', NULL, NULL, GETDATE(), 0),
-(2, 3, N'Chào user!', NULL, NULL, GETDATE(), 0),
-(3, 1, N'Chào cả nhóm!', NULL, NULL, GETDATE(), 0),
-(3, 2, N'Hello mọi người!', NULL, NULL, GETDATE(), 0),
-(3, 4, N'Có ai đi cafe không?', NULL, NULL, GETDATE(), 0),
-(3, 5, N'Đi chứ!', NULL, NULL, GETDATE(), 0),
-(4, 4, N'Dự án Instar tiến độ tới đâu rồi?', NULL, NULL, GETDATE(), 0),
-(4, 5, N'Mình mới làm xong phần backend!', NULL, NULL, GETDATE(), 0),
-(4, 6, N'Frontend ok chưa mọi người?', NULL, NULL, GETDATE(), 0),
-(4, 7, N'Mai họp nhé', NULL, NULL, GETDATE(), 0);
+-- MESSAGES (không có file_url/file_type)
+INSERT INTO messages (chat_id, sender_id, content, created_at, is_read) VALUES
+(1, 1, N'Hello user!', GETDATE(), 1),
+(1, 2, N'Chào admin!', GETDATE(), 1),
+(2, 2, N'Hello user0!', GETDATE(), 0),
+(2, 3, N'Chào user!', GETDATE(), 0),
+(3, 1, N'Chào cả nhóm!', GETDATE(), 0),
+(3, 2, N'Hello mọi người!', GETDATE(), 0),
+(3, 4, N'Có ai đi cafe không?', GETDATE(), 0),
+(3, 5, N'Đi chứ!', GETDATE(), 0),
+(4, 4, N'Dự án Instar tiến độ tới đâu rồi?', GETDATE(), 0),
+(4, 5, N'Mình mới làm xong phần backend!', GETDATE(), 0),
+(4, 6, N'Frontend ok chưa mọi người?', GETDATE(), 0),
+(4, 7, N'Mai họp nhé', GETDATE(), 0);
 
+-- MESSAGE_ATTACHMENTS (gắn file cho message_id bất kỳ)
+INSERT INTO message_attachments (message_id, file_url, file_type) VALUES
+(1, 'chat_img1.jpg', 'image'),
+(2, 'tailieu.pdf', 'pdf'),
+(5, 'video_group.mp4', 'video'),
+(5, 'hinhanh_group.png', 'image'),
+(8, 'docx1.docx', 'other');
+
+-- DEVICES
 INSERT INTO devices (user_id, device_token, device_name, last_login, is_active) VALUES
 (1, 'token1', N'iPhone 13', GETDATE(), 1),
 (2, 'token2', N'Galaxy S21', GETDATE(), 1),
@@ -236,6 +274,7 @@ INSERT INTO devices (user_id, device_token, device_name, last_login, is_active) 
 (9, 'token9', N'Asus Zenbook', GETDATE(), 1),
 (10, 'token10', N'Lenovo Yoga', GETDATE(), 1);
 
+-- NOTIFICATIONS
 INSERT INTO notifications (user_id, type, message, link, is_read, created_at) VALUES
 (1, 'like', N'Bob đã thích bài viết của bạn', NULL, 0, GETDATE()),
 (2, 'comment', N'Alice đã bình luận bài viết của bạn', NULL, 0, GETDATE()),
@@ -248,6 +287,7 @@ INSERT INTO notifications (user_id, type, message, link, is_read, created_at) VA
 (9, 'follow', N'Jack vừa theo dõi bạn', NULL, 0, GETDATE()),
 (10, 'like', N'Alice đã thích bài viết của bạn', NULL, 0, GETDATE());
 
+-- USER_BEHAVIORS
 INSERT INTO user_behaviors (user_id, action, target_id, created_at) VALUES
 (1, 'view_post', 2, GETDATE()),
 (2, 'like_post', 3, GETDATE()),

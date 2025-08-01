@@ -21,12 +21,6 @@ public class Post {
     @Column(length = 500)
     private String content;
 
-    @Column(length = 255)
-    private String imageUrl;
-
-    @Column(length = 255)
-    private String videoUrl;
-
     @Column(nullable = false)
     private LocalDateTime createdAt;
 

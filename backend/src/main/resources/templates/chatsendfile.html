@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Realtime Chat (Instar)</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/css/bootstrap.min.css"/>
+</head>
+<body class="p-4">
+<div class="container">
+    <h3>Test Chat Realtime Instar (Có gửi file)</h3>
+    <div class="row mb-2">
+        <div class="col">
+            <label>UserId: <input id="userId" class="form-control" value="1"></label>
+        </div>
+        <div class="col">
+            <label>ChatId: <input id="chatId" class="form-control" value="1"></label>
+        </div>
+    </div>
+    <div class="mb-2">
+        <label>Chọn file (gửi kèm): <input type="file" id="files" multiple></label>
+    </div>
+    <div class="mb-2">
+        <label>JWT Token (nếu backend check bảo mật): <input id="token" class="form-control"></label>
+    </div>
+    <button id="connectBtn" class="btn btn-success mb-2">Kết nối</button>
+    <div id="status"></div>
+    <div id="messages" style="height:300px;overflow:auto;background:#eee;padding:10px;"></div>
+    <div class="row mt-2">
+        <div class="col-9"><input id="messageInput" class="form-control" placeholder="Nhập nội dung..."></div>
+        <div class="col-3"><button id="sendBtn" class="btn btn-primary w-100">Gửi</button></div>
+    </div>
+</div>
+
+<script>
+    let stompClient = null;
+    let connected = false;
+
+    // Kết nối socket và lắng nghe tin nhắn realtime
+    document.getElementById('connectBtn').onclick = function () {
+        let userId = document.getElementById('userId').value;
+        let chatId = document.getElementById('chatId').value;
+        let socket = new SockJS('http://localhost:8080/ws');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, function () {
+            connected = true;
+            document.getElementById('status').innerText = 'Đã kết nối';
+            let topic = '/topic/chat/' + chatId + '/user/' + userId;
+            stompClient.subscribe(topic, function (msg) {
+                let body = JSON.parse(msg.body);
+                let messagesDiv = document.getElementById('messages');
+                // Hiển thị nội dung tin nhắn
+                let html = `<div><b>${body.senderId}:</b> ${body.content || ''} <small>${body.createdAt || ''}</small>`;
+                // Nếu có file đính kèm thì hiển thị link tải xuống
+                if (body.attachments && body.attachments.length > 0) {
+                    html += `<div style="margin-left:20px;">`;
+                    body.attachments.forEach(function (f) {
+                        // Link tải file - chỉnh đúng backend config (mặc định: /uploads/{fileUrl})
+                        let downloadUrl = 'http://localhost:8080/uploads/' + encodeURIComponent(f.fileUrl);
+                        html += `<a href="${downloadUrl}" target="_blank" download class="badge bg-secondary me-1">${f.fileType}: ${f.fileUrl}</a>`;
+                    });
+                    html += `</div>`;
+                }
+                html += `</div>`;
+                messagesDiv.innerHTML += html;
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            });
+        });
+    };
+
+    // Gửi tin nhắn (nội dung + file) qua HTTP, chỉ đẩy thông báo qua socket
+    document.getElementById('sendBtn').onclick = async function () {
+        if (!connected) {
+            alert('Chưa kết nối');
+            return;
+        }
+        let chatId = parseInt(document.getElementById('chatId').value);
+        let content = document.getElementById('messageInput').value;
+        let filesInput = document.getElementById('files');
+        let files = filesInput.files;
+        let token = document.getElementById('token').value.trim();
+
+        // Chuẩn bị form-data
+        let formData = new FormData();
+        formData.append('chatId', chatId);
+        formData.append('content', content);
+        for (let i = 0; i < files.length; i++) {
+            formData.append('files', files[i]);
+        }
+
+        // Gửi message
+        await fetch('http://localhost:8080/api/messages/send', {
+            method: 'POST',
+            body: formData,
+            headers: token ? {'Authorization': 'Bearer ' + token} : {}
+        });
+
+        document.getElementById('messageInput').value = '';
+        filesInput.value = '';
+    };
+</script>
+</body>
+</html>

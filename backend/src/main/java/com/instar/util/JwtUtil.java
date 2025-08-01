@@ -12,11 +12,9 @@ import java.util.Date;
 public class JwtUtil {
     @Value("${jwt.secret}")
     private String SECRET;
-
     private Key key;
     private final long REFRESH_EXPIRATION = 604800000; // 7 ngày
     private final long EXPIRATION = 3600000; // 1 giờ
-
     //khởi tạo bổ sung sau khi spring khởi tạo bean và inject denpen
     // đảm bảo secret đã được inject tránh null
     @PostConstruct
@@ -27,6 +25,7 @@ public class JwtUtil {
     public String createToken(String username, String userId, String role) {
         return Jwts.builder()
                 .setSubject(userId)
+                .setIssuer("instar")
                 .claim("username", username)
                 .claim("role", role)
                 .setIssuedAt(new Date())
