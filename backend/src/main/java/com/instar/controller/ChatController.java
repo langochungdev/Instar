@@ -1,5 +1,4 @@
 package com.instar.controller;
-
 import com.instar.dto.MessageDto;
 import com.instar.entity.Chat;
 import com.instar.entity.ChatUser;
@@ -21,19 +20,18 @@ public class ChatController {
     private final MessageService messageService;
     private final ChatRepository chatRepository;
 
-    @MessageMapping("/chat.send") // client gửi tới /app/chat.send
-    public void sendMessage(@Payload MessageDto messageDto) {
-        // lưu tin nhắn vào DB
-        MessageDto saved = messageService.send(messageDto);
+    @MessageMapping("/chat.send") // từ prefix app
+    public void sendMessage(@Payload MessageDto dto) {
+        MessageDto mess = messageService.save(dto);
 
-        // lấy danh sách thành viên phòng chat
-        Chat chat = chatRepository.findById(saved.getChatId()).orElse(null);
+        Chat chat = chatRepository.findById(mess.getChatId()).orElse(null);
         if (chat == null) return;
 
         List<ChatUser> members = chatUserRepository.findByChatId(chat.getId());
         for (ChatUser cu : members) {
+            //destination điểm đến topic/chat/chat1/user/user1
             String dest = "/topic/chat/" + chat.getId() + "/user/" + cu.getUser().getId();
-            messagingTemplate.convertAndSend(dest, saved);
+            messagingTemplate.convertAndSend(dest, mess);
         }
     }
 }

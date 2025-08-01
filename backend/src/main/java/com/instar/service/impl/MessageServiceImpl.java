@@ -1,5 +1,4 @@
 package com.instar.service.impl;
-
 import com.instar.dto.MessageDto;
 import com.instar.entity.Chat;
 import com.instar.entity.Message;
@@ -26,7 +25,7 @@ public class MessageServiceImpl implements MessageService {
     private final MessageMapper messageMapper;
 
     @Override
-    public MessageDto send(MessageDto dto) {
+    public MessageDto save(MessageDto dto) {
         // Integer currentUserId = CurrentUserUtil.getCurrentUserId();
         // boolean admin = CurrentUserUtil.isAdmin();
         // if (!dto.getSenderId().equals(currentUserId) && !admin) {

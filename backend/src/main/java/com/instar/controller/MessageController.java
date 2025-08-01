@@ -1,5 +1,4 @@
 package com.instar.controller;
-
 import com.instar.dto.MessageAttachmentDto;
 import com.instar.dto.MessageDto;
 import com.instar.entity.Chat;
@@ -23,7 +22,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -42,10 +40,9 @@ public class MessageController {
     private final MessageRepository messageRepository;
     private final JwtUtil jwtUtil;
     private final MessageMapper messageMapper;
-    private final MessageAttachmentMapper attachmentMapper;
     private final SimpMessagingTemplate messagingTemplate;
 
-    @Value("${upload.dir:uploads}")
+    @Value("${upload.dir:uploads}") // lấy trong file cấu hình, mặc định uploads
     private String uploadDir;
 
     @PostMapping("/send")
@@ -111,10 +108,10 @@ public class MessageController {
         return ResponseEntity.ok(messageDto);
     }
 
-    @PostMapping
-    public MessageDto send(@RequestBody MessageDto dto) {
-        return messageService.send(dto);
-    }
+//    @PostMapping
+//    public MessageDto send(@RequestBody MessageDto dto) {
+//        return messageService.save(dto);
+//    }
 
     @GetMapping("/conversations/{userId}")
     public List<MessageDto> getConversations(@PathVariable Integer userId) {

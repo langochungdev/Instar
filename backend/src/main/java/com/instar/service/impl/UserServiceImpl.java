@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -95,29 +94,6 @@ public class UserServiceImpl implements UserService {
         }
         return userMapper.toDto(user);
     }
-
-    @Override
-    public UserDto register(User e) {
-        e.setPassword(passwordEncoder.encode(e.getPassword()));
-        e = userRepository.save(e);
-        return userMapper.toDto(e);
-    }
-
-    @Override
-    public AuthResponse login(AuthRequest request) {
-        User user = userRepository.findByUsername(request.getUsername()).orElse(null);
-        if (user == null) throw new RuntimeException("User không tồn tại!");
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) throw new RuntimeException("Sai mật khẩu!");
-        String token = jwtUtil.createToken(user.getUsername(), String.valueOf(user.getId()), user.getRole());
-        String refreshToken = jwtUtil.createRefreshToken(user.getUsername(), String.valueOf(user.getId()), user.getRole());
-        long expiresIn = jwtUtil.getExpiration();
-        return AuthResponse.builder()
-                .accessToken(token)
-                .refreshToken(refreshToken)
-                .expiresIn(expiresIn)
-                .build();
-    }
-
 
     @Override
     public void changePassword(Integer id, String oldPassword, String newPassword) {

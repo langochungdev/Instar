@@ -1,5 +1,4 @@
 package com.instar.service.impl;
-
 import com.instar.dto.ChatDto;
 import com.instar.entity.Chat;
 import com.instar.entity.ChatUser;
@@ -10,7 +9,6 @@ import com.instar.repository.ChatRepository;
 import com.instar.repository.ChatUserRepository;
 import com.instar.repository.UserRepository;
 import com.instar.service.ChatService;
-import com.instar.util.CurrentUserUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
