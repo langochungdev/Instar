@@ -50,7 +50,6 @@
             stompClient.subscribe(topic, function (msg) {
                 let body = JSON.parse(msg.body);
                 let messagesDiv = document.getElementById('messages');
-                // Hiển thị nội dung tin nhắn
                 let html = `<div><b>${body.senderId}:</b> ${body.content || ''} <small>${body.createdAt || ''}</small>`;
                 // Nếu có file đính kèm thì hiển thị link tải xuống
                 if (body.attachments && body.attachments.length > 0) {
