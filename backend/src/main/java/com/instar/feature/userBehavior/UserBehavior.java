@@ -1,5 +1,4 @@
 package com.instar.feature.userBehavior;
-
 import com.instar.feature.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

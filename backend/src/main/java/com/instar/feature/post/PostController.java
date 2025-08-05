@@ -28,7 +28,7 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<?> createPost(@RequestBody PostRequest postRequest, HttpServletRequest request) {
-        String token = jwtUtil.extractTokenFromRequest(request);
+        String token = jwtUtil.getToken(request);
         if (token == null || !jwtUtil.validateToken(token))
             return ResponseEntity.status(401).body("Unauthorized");
 

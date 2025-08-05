@@ -18,10 +18,10 @@
         <input id="accessToken-a" type="text" readonly>
         <button class="copy" onclick="copyToken('accessToken-a')">Copy</button>
     </label>
-    <label>RefreshToken:
-        <input id="refreshToken-a" type="text" readonly>
-        <button class="copy" onclick="copyToken('refreshToken-a')">Copy</button>
-    </label>
+<!--    <label>RefreshToken:-->
+<!--        <input id="refreshToken-a" type="text" readonly>-->
+<!--        <button class="copy" onclick="copyToken('refreshToken-a')">Copy</button>-->
+<!--    </label>-->
 </div>
 <div class="block">
     <button onclick="login('user', '123', 'b')">Đăng nhập USER</button>
@@ -29,10 +29,10 @@
         <input id="accessToken-b" type="text" readonly>
         <button class="copy" onclick="copyToken('accessToken-b')">Copy</button>
     </label>
-    <label>RefreshToken:
-        <input id="refreshToken-b" type="text" readonly>
-        <button class="copy" onclick="copyToken('refreshToken-b')">Copy</button>
-    </label>
+<!--    <label>RefreshToken:-->
+<!--        <input id="refreshToken-b" type="text" readonly>-->
+<!--        <button class="copy" onclick="copyToken('refreshToken-b')">Copy</button>-->
+<!--    </label>-->
 </div>
 <script>
     function login(username, password, key) {
@@ -44,11 +44,11 @@
             .then(res => res.json())
             .then(data => {
                 document.getElementById('accessToken-' + key).value = data.accessToken || '';
-                document.getElementById('refreshToken-' + key).value = data.refreshToken || '';
+                // document.getElementById('refreshToken-' + key).value = data.refreshToken || '';
             })
             .catch(err => {
                 document.getElementById('accessToken-' + key).value = 'Đăng nhập lỗi!';
-                document.getElementById('refreshToken-' + key).value = '';
+                // document.getElementById('refreshToken-' + key).value = '';
             });
     }
 

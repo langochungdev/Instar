@@ -52,7 +52,7 @@ public class MessageController {
             @RequestPart(value = "files", required = false) MultipartFile[] files,
             HttpServletRequest request
     ) throws IOException {
-        String token = jwtUtil.extractTokenFromRequest(request);
+        String token = jwtUtil.getToken(request);
         if (token == null || !jwtUtil.validateToken(token))
             return ResponseEntity.status(401).body("Unauthorized");
 

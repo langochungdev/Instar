@@ -49,7 +49,7 @@ public class UserController {
 
 
     @PutMapping("/{id}/password")
-    public String changePassword(@PathVariable Integer id, @RequestBody ChangePasswordRequest req) {
+    public String changePassword(@PathVariable Integer id, @RequestBody ChangePasswordRequestDto req) {
         userService.changePassword(id, req.getOldPassword(), req.getNewPassword());
         return "Đổi mật khẩu thành công";
     }

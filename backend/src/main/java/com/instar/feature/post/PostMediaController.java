@@ -45,7 +45,7 @@ public class PostMediaController {
             HttpServletRequest request
     ) throws IOException {
         // Lấy access token từ request header
-        String token = jwtUtil.extractTokenFromRequest(request);
+        String token = jwtUtil.getToken(request);
         if (token == null || !jwtUtil.validateToken(token))
             return ResponseEntity.status(401).body("Unauthorized");
 

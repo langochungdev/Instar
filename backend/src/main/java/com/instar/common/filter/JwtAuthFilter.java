@@ -1,5 +1,4 @@
 package com.instar.common.filter;
-
 import com.instar.common.util.JwtUtil;
 import com.instar.config.security.CustomUserDetails;
 import com.instar.feature.user.User;

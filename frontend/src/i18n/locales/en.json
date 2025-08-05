@@ -1,0 +1,7 @@
+{
+  "hello": "Hello",
+  "darkMode": "Dark Mode",
+  "lightMode": "Light Mode",
+  "welcome": "Welcome to the Vue App",
+  "toggleTheme": "Toggle Theme"
+}

@@ -1,0 +1,7 @@
+{
+  "hello": "Xin chào",
+  "darkMode": "Chế độ tối",
+  "lightMode": "Chế độ sáng",
+  "welcome": "Chào mừng đến với ứng dụng Vue",
+  "toggleTheme": "Chuyển giao diện"
+}
