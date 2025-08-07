@@ -43,7 +43,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         var config = new CorsConfiguration();
-        config.setAllowedOriginPatterns(List.of("http://localhost:63342", "http://localhost:8080", "http://127.0.0.1:5500")); // Thêm cả backend nếu test HTML từ static
+        config.setAllowedOriginPatterns(List.of("http://localhost:63342", "http://localhost:8080", "http://127.0.0.1:5500", "http://localhost:5173")); // Thêm cả backend nếu test HTML từ static
         config.setAllowedMethods(List.of("*"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

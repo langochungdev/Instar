@@ -1,17 +1,30 @@
+// src/App.vue
 <template>
-  <div class="container py-5">
-    <ThemeToggle />
-    <h1 class="mt-4">Hello Bootstrap + Vue</h1>
-    <p>
-      Đang ở mode: <b>{{ isDark ? "Dark" : "Light" }}</b>
-    </p>
-    <button class="btn btn-primary">Primary Button</button>
-  </div>
+  <component :is="layout">
+    <router-view />
+  </component>
 </template>
-
 <script setup>
-import { useDark } from "@vueuse/core";
-import ThemeToggle from "./components/ThemeToggle.vue";
+import { onMounted, computed } from "vue";
+import { useRoute } from "vue-router";
+import { checkTokenOnLoad } from "@/features/init/authCheck";
+import MainLayout from "@/layouts/MainLayout.vue";
+import AuthLayout from "@/layouts/AuthLayout.vue";
 
-const isDark = useDark({ attribute: "data-bs-theme" });
+const route = useRoute();
+
+onMounted(() => {
+  // ❗ CHỈ kiểm tra token nếu không phải trang auth
+  if (route.meta.layout !== "auth") {
+    checkTokenOnLoad();
+  }
+});
+
+const layout = computed(() => {
+  return route.meta.layout === "auth" ? AuthLayout : MainLayout;
+});
 </script>
+
+<!-- <style>
+@import "./assets/styles.css";
+</style> -->

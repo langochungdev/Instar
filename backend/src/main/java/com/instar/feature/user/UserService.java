@@ -1,6 +1,4 @@
 package com.instar.feature.user;
-
-
 import java.util.List;
 
 public interface UserService {

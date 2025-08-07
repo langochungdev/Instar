@@ -27,10 +27,23 @@ public class AuthServiceImpl implements AuthService {
         String token = jwtUtil.createToken(user.getUsername(), String.valueOf(user.getId()), user.getRole());
 //        String refreshToken = jwtUtil.createRefreshToken(user.getUsername(), String.valueOf(user.getId()), user.getRole());
         long expiresIn = jwtUtil.getExpiration();
+//        return AuthResponse.builder()
+//                .accessToken(token)
+////                .refreshToken(refreshToken)
+//                .expiresIn(expiresIn)
+//                .build();
+        UserAuthDto dto = UserAuthDto.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .fullName(user.getFullName())  // assuming `user` has fullName field
+                .email(user.getEmail())
+                .role(user.getRole())
+                .build();
+
         return AuthResponse.builder()
                 .accessToken(token)
-//                .refreshToken(refreshToken)
                 .expiresIn(expiresIn)
+                .user(dto)
                 .build();
     }
 

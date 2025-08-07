@@ -8,11 +8,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
-//    private final JwtUtil jwtUtil;
+    private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final AuthService authService;
     AuthResponse response;
@@ -26,6 +28,37 @@ public class AuthController {
         }
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<?> checkStatus(HttpServletRequest request) {
+        String token = jwtUtil.getTokenFromCookie(request);
+
+        if (token != null && jwtUtil.validateToken(token)) {
+            String userId = jwtUtil.extractUserId(token);
+            Integer id = Integer.valueOf(userId);
+
+            Optional<User> optionalUser = userRepository.findById(id);
+            if (optionalUser.isEmpty()) {
+                return ResponseEntity.status(404).body("User not found");
+            }
+
+            User user = optionalUser.get();
+
+            UserAuthDto dto = UserAuthDto.builder()
+                    .id(user.getId())
+                    .username(user.getUsername())
+                    .fullName(user.getFullName())
+                    .email(user.getEmail())
+                    .role(user.getRole())
+                    .build();
+
+            return ResponseEntity.ok(dto);
+        } else {
+            return ResponseEntity.status(401).body("Invalid or expired token");
+        }
+    }
+
+
 
     @PostMapping("/register")
     public UserDto register(@RequestBody User user) {
