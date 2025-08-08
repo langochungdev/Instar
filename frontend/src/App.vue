@@ -14,7 +14,6 @@ import AuthLayout from "@/layouts/AuthLayout.vue";
 const route = useRoute();
 
 onMounted(() => {
-  // ❗ CHỈ kiểm tra token nếu không phải trang auth
   if (route.meta.layout !== "auth") {
     checkTokenOnLoad();
   }

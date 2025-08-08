@@ -1,8 +1,15 @@
 package com.instar.common.util;
 import com.instar.config.security.CustomUserDetails;
+import com.instar.feature.user.User;
+import com.instar.feature.user.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 
+@Component
+@RequiredArgsConstructor
 public class CurrentUserUtil {
     public static CustomUserDetails getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -24,5 +31,12 @@ public class CurrentUserUtil {
         if (user == null) return false;
         return user.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ADMIN"));
+    }
+
+    @Autowired
+    private UserRepository userRepository;
+    public User getUser() {
+        Integer userId = getCurrentUserId();
+        return userId != null ? userRepository.findById(userId).orElse(null) : null;
     }
 }

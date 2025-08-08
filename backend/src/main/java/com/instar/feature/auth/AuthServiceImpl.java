@@ -9,6 +9,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.HttpHeaders;
 
 @Service
 @RequiredArgsConstructor
@@ -18,34 +21,44 @@ public class AuthServiceImpl implements AuthService {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
-
     @Override
-    public AuthResponse login(AuthRequest request) {
+    public ResponseEntity<AuthResponse> login(AuthRequest request) {
         User user = userRepository.findByUsername(request.getUsername()).orElse(null);
         if (user == null) throw new RuntimeException("User không tồn tại!");
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) throw new RuntimeException("Sai mật khẩu!");
+
         String token = jwtUtil.createToken(user.getUsername(), String.valueOf(user.getId()), user.getRole());
-//        String refreshToken = jwtUtil.createRefreshToken(user.getUsername(), String.valueOf(user.getId()), user.getRole());
         long expiresIn = jwtUtil.getExpiration();
-//        return AuthResponse.builder()
-//                .accessToken(token)
-////                .refreshToken(refreshToken)
-//                .expiresIn(expiresIn)
-//                .build();
+
         UserAuthDto dto = UserAuthDto.builder()
                 .id(user.getId())
                 .username(user.getUsername())
-                .fullName(user.getFullName())  // assuming `user` has fullName field
+                .fullName(user.getFullName())
                 .email(user.getEmail())
                 .role(user.getRole())
                 .build();
 
-        return AuthResponse.builder()
+        AuthResponse authResponse = AuthResponse.builder()
                 .accessToken(token)
                 .expiresIn(expiresIn)
                 .user(dto)
                 .build();
+
+        // Tạo cookie HTTP-only
+        ResponseCookie cookie = ResponseCookie.from("token", token)
+                .httpOnly(true)
+                .secure(false)     // dev HTTP
+                .sameSite("Lax")   // cùng-site → cookie sẽ được gửi
+                .path("/")
+                .maxAge(expiresIn / 1000)
+                .build();
+
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(authResponse);
     }
+
 
     @Override
     public UserDto register(User user) {
