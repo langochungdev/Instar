@@ -24,6 +24,7 @@ export const getCurrentUser = async () => {
 
 
 export const logout = async () => {
+    console.log("Logging out...");
     try {
         await axios.post("/auth/logout");
     } catch (e) {
