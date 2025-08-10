@@ -1,5 +1,4 @@
 package com.instar.config.security;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

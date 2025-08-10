@@ -11,6 +11,9 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class CurrentUserUtil {
+    @Autowired
+    private UserRepository userRepository;
+
     public static CustomUserDetails getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) return null;
@@ -33,8 +36,6 @@ public class CurrentUserUtil {
                 .anyMatch(a -> a.getAuthority().equals("ADMIN"));
     }
 
-    @Autowired
-    private UserRepository userRepository;
     public User getUser() {
         Integer userId = getCurrentUserId();
         return userId != null ? userRepository.findById(userId).orElse(null) : null;

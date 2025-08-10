@@ -1,4 +1,6 @@
 package com.instar.common.filter;
+
+import com.instar.common.exception.ErrorResponder;
 import com.instar.common.service.TokenBlacklistService;
 import com.instar.common.util.JwtUtil;
 import com.instar.config.security.CustomUserDetails;
@@ -44,7 +46,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain)
             throws IOException, ServletException {
-
+        System.out.println(request.getRequestURI());
+        String token = null;
+        String userId = null;
 
         String path = request.getRequestURI();
         if (EXCLUDED_PATHS.contains(path)) {
@@ -52,45 +56,30 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             return;
         }
 
-        System.out.println(request.getRequestURI());
-
-        String token = null;
-        String userId = null;
-
-            Cookie[] cookies = request.getCookies();
-            if (cookies != null) {
-                for (Cookie cookie : cookies) {
-                    if ("token".equals(cookie.getName())) {
-                        token = cookie.getValue();
-                        break;
-                    }
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("token".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
                 }
             }
-
-        if (token == null) {
-            sendError(response, "Missing token");
+        } else {
+            ErrorResponder.sendError(response, "cookie ko token");
             return;
         }
-
-        if (tokenBlacklistService.isTokenBlacklisted(token)) {
-            sendError(response, "Token is blacklisted");
-            return;
-        }
-
         if (!jwtUtil.validateToken(token)) {
-            System.out.println("token sai");
-            sendError(response, "Invalid or expired token");
+            ErrorResponder.sendError(response, "token sai hoac het hang");
             return;
         }
-
+        if (tokenBlacklistService.isTokenBlacklisted(token)) {
+            ErrorResponder.sendError(response, "token trong blacklist");
+            return;
+        }
 
         userId = jwtUtil.extractUserId(token);
         if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             User user = userRepository.findById(Integer.valueOf(userId)).orElse(null);
-            if (user == null) {
-                sendError(response, "User not found");
-                return;
-            }
 
             UserDetails userDetails = new CustomUserDetails(
                     user.getId(),
@@ -114,9 +103,5 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private void sendError(HttpServletResponse response, String message) throws IOException {
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json;charset=UTF-8");
-        response.getWriter().write("{\"error\": \"" + message + "\"}");
-    }
+
 }

@@ -1,11 +1,21 @@
 // src/router/index.js
 import { createRouter, createWebHistory } from "vue-router";
 import LoginView from "@/features/auth/views/LoginView.vue";
+// import Home from "@/views/layouts/MainLayout.vue";
 // import RegisterView from "@/features/auth/views/RegisterView.vue";
 // import PostListView from "@/features/post/views/PostListView.vue";
 // import PostDetailView from "@/features/post/views/PostDetailView.vue";
+import { h } from "vue";
 
 const routes = [
+
+  {
+    path: "/",
+    name: "Empty",
+    component: { render: () => h("div") },
+    meta: { layout: null }
+  },
+
   {
     path: "/login",
     name: "Login",

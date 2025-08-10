@@ -1,4 +1,4 @@
-package com.instar.common.exception;//package com.instar.common.exception;
+//package com.instar.common.exception;
 //
 //import org.springframework.http.HttpStatus;
 //import org.springframework.http.ResponseEntity;
