@@ -1,9 +1,9 @@
 import axios from "@/utils/axios";
-import { useAuthStore } from "@/features/auth/store";
+import { useAuthStore } from "@/features/auth/authStore";
 
-export const login = async ({ username, password }) => {
+export const login = async (payload) => {
     try {
-        const { data: response } = await axios.post("/auth/login", { username, password });
+        const { data: response } = await axios.post("/auth/login", payload);
         const authStore = useAuthStore();
         authStore.setUser(response.user);
         return response;
@@ -11,6 +11,7 @@ export const login = async ({ username, password }) => {
         return null;
     }
 };
+
 
 
 export const getCurrentUser = async () => {

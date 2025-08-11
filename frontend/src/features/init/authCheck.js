@@ -1,5 +1,5 @@
-import { getCurrentUser, logout } from "@/features/auth/service";
-import { useAuthStore } from "@/features/auth/store";
+import { getCurrentUser, logout } from "@/features/auth/authService";
+import { useAuthStore } from "@/features/auth/authStore";
 
 export async function checkTokenOnLoad() {
   const user = await getCurrentUser();

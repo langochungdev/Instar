@@ -118,8 +118,9 @@ CREATE TABLE saved_posts (
 CREATE TABLE devices (
     id INT IDENTITY PRIMARY KEY,
     user_id INT NOT NULL,
-    device_token NVARCHAR(255) NOT NULL,
-    device_name NVARCHAR(100) NOT NULL,
+    device_token NVARCHAR(255) NULL,
+    device_name NVARCHAR(100) NULL,
+    fingerprint NVARCHAR(255) NULL,
     last_login DATETIME NOT NULL DEFAULT GETDATE(),
     is_active BIT NOT NULL DEFAULT 1,
     FOREIGN KEY (user_id) REFERENCES users(id)
@@ -261,18 +262,17 @@ INSERT INTO message_attachments (message_id, file_url, file_type) VALUES
 (5, 'hinhanh_group.png', 'image'),
 (8, 'docx1.docx', 'other');
 
--- DEVICES
-INSERT INTO devices (user_id, device_token, device_name, last_login, is_active) VALUES
-(1, 'token1', N'iPhone 13', GETDATE(), 1),
-(2, 'token2', N'Galaxy S21', GETDATE(), 1),
-(3, 'token3', N'Macbook Pro', GETDATE(), 1),
-(4, 'token4', N'Laptop HP', GETDATE(), 1),
-(5, 'token5', N'iPad Air', GETDATE(), 1),
-(6, 'token6', N'Xiaomi Note', GETDATE(), 1),
-(7, 'token7', N'Dell XPS', GETDATE(), 1),
-(8, 'token8', N'Samsung Tab', GETDATE(), 1),
-(9, 'token9', N'Asus Zenbook', GETDATE(), 1),
-(10, 'token10', N'Lenovo Yoga', GETDATE(), 1);
+INSERT INTO devices (user_id, device_token, device_name, fingerprint, last_login, is_active) VALUES
+(1, 'token1', N'iPhone 13', 'fp1', GETDATE(), 1),
+(2, 'token2', N'Galaxy S21', 'fp2', GETDATE(), 1),
+(3, 'token3', N'Macbook Pro', 'fp3', GETDATE(), 1),
+(4, 'token4', N'Laptop HP', 'fp4', GETDATE(), 1),
+(5, 'token5', N'iPad Air', 'fp5', GETDATE(), 1),
+(6, 'token6', N'Xiaomi Note', 'fp6', GETDATE(), 1),
+(7, 'token7', N'Dell XPS', 'fp7', GETDATE(), 1),
+(8, 'token8', N'Samsung Tab', 'fp8', GETDATE(), 1),
+(9, 'token9', N'Asus Zenbook', 'fp9', GETDATE(), 1),
+(10, 'token10', N'Lenovo Yoga', 'fp10', GETDATE(), 1);
 
 -- NOTIFICATIONS
 INSERT INTO notifications (user_id, type, message, link, is_read, created_at) VALUES

@@ -3,6 +3,8 @@ import com.instar.common.exception.ErrorResponder;
 import com.instar.common.service.TokenBlacklistService;
 import com.instar.common.util.CurrentUserUtil;
 import com.instar.common.util.JwtUtil;
+import com.instar.feature.device.Device;
+import com.instar.feature.device.DeviceRepository;
 import com.instar.feature.user.User;
 import com.instar.feature.user.UserDto;
 import com.instar.feature.user.UserMapper;
@@ -19,6 +21,8 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
@@ -28,6 +32,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final TokenBlacklistService tokenBlacklistService;
     private final CurrentUserUtil currentUserUtil;
+    private final DeviceRepository deviceRepository;
 
     @Override
     public ResponseEntity<?> login(AuthRequest request, HttpServletResponse response) {
@@ -40,6 +45,21 @@ public class AuthServiceImpl implements AuthService {
             ErrorResponder.sendError(response, "sai mat khau");
             return ResponseEntity.badRequest().build();
         }
+
+        // Lưu hoặc cập nhật thông tin thiết bị
+        Device device = deviceRepository
+                .findByUserIdAndFingerprint(user.getId(), request.getFingerprint())
+                .orElse(Device.builder()
+                        .user(user)
+                        .fingerprint(request.getFingerprint())
+                        .build());
+
+        device.setDeviceToken(request.getDeviceToken());
+        device.setDeviceName(request.getDeviceName());
+        device.setLastLogin(LocalDateTime.now());
+        device.setIsActive(true);
+
+        deviceRepository.save(device);
 
         String token = jwtUtil.createToken(user.getUsername(), String.valueOf(user.getId()), user.getRole());
         long expiresIn = jwtUtil.getExpiration();
@@ -80,6 +100,17 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ResponseEntity<?> logout(String token, HttpServletResponse response) {
         if (token != null && jwtUtil.validateToken(token)) {
+            // Lấy userId từ token
+            Integer userId = Integer.valueOf(jwtUtil.extractUserId(token));
+
+            // Cập nhật device isActive = false
+            deviceRepository.findAllByUserId(userId).forEach(device -> {
+                device.setIsActive(false);
+//                device.setLastLogin(device.getLastLogin());
+                deviceRepository.save(device);
+            });
+
+            // them vao blacklist
             long expiration = jwtUtil.getExpirationFromToken(token) - System.currentTimeMillis();
             tokenBlacklistService.blacklistToken(token, expiration);
         }

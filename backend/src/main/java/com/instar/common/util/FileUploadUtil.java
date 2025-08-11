@@ -1,4 +1,4 @@
-package com.instar.common.util;//package com.instar.util;
+//package com.instar.common.util;
 //import org.springframework.web.multipart.MultipartFile;
 //import java.io.File;
 //import java.io.IOException;

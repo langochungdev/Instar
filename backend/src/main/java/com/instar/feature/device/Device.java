@@ -23,15 +23,20 @@ public class Device {
     @JoinColumn(nullable = false)
     private User user;
 
-    @Column(nullable = false, length = 255)
+    @Column(length = 255)
     private String deviceToken;
 
-    @Column(nullable = false, length = 100)
+    @Column( length = 100)
     private String deviceName;
+
+    @Column(length = 255)
+    private String fingerprint;
 
     @Column(nullable = false)
     private LocalDateTime lastLogin;
 
     @Column(nullable = false)
     private Boolean isActive = true;
+
+
 }

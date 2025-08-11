@@ -1,28 +1,31 @@
 package com.instar.feature.device;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/devices")
 @RequiredArgsConstructor
 public class DeviceController {
-    private final DeviceService deviceService;
+
+    private final DeviceRepository deviceRepository;
 
     @GetMapping("/user/{userId}")
-    public List<DeviceDto> getDevices(@PathVariable Integer userId) {
-        return deviceService.findByUserId(userId);
+    public List<Device> getDevices(@PathVariable Integer userId) {
+        return deviceRepository.findAll()
+                .stream()
+                .filter(d -> d.getUser().getId().equals(userId))
+                .toList();
     }
 
     @PostMapping("/register")
-    public DeviceDto register(@RequestBody DeviceDto dto) {
-        return deviceService.register(dto);
+    public Device register(@RequestBody Device device) {
+        return deviceRepository.save(device);
     }
 
     @DeleteMapping("/{id}")
     public String remove(@PathVariable Integer id) {
-        deviceService.remove(id);
+        deviceRepository.deleteById(id);
         return "Đã xóa thiết bị";
     }
 }

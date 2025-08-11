@@ -14,7 +14,6 @@ public class AuthController {
     private final UserRepository userRepository;
     private final AuthService authService;
 
-
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest request, HttpServletResponse response) {
         User e = userRepository.findByUsername(request.getUsername()).orElse(null);
@@ -23,6 +22,7 @@ public class AuthController {
         }
         return authService.login(request, response);
     }
+
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@CookieValue(name = "token", required = false) String token, HttpServletResponse response) {
