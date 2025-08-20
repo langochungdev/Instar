@@ -1,5 +1,4 @@
 package com.instar.feature.like;
-
 import com.instar.feature.post.model.post.Post;
 import com.instar.feature.user.User;
 import jakarta.persistence.*;

@@ -1,0 +1,28 @@
+{
+    "name": "frontend-vue-vite",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "terminal.integrated.shell.linux": "/bin/bash",
+                "editor.formatOnSave": true
+            },
+            "extensions": [
+                "christian-kohler.path-intellisense",
+                "esbenp.prettier-vscode",
+                "maptz.regionfolder",
+                "dbaeumer.vscode-eslint",
+                "formulahendry.htmltagwrap"
+            ]
+        }
+    },
+    "forwardPorts": [5173],
+    "postCreateCommand": "npm install",
+    "remoteUser": "node",
+    "mounts": [
+        "source=frontend_node_modules,target=/workspace/node_modules,type=volume"
+    ]
+}

@@ -1,5 +1,4 @@
 package com.instar.common.filter;
-
 import com.instar.common.exception.ErrorResponder;
 import com.instar.common.service.TokenBlacklistService;
 import com.instar.common.util.JwtUtil;
@@ -102,6 +101,4 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
     }
-
-
 }
