@@ -1,29 +1,28 @@
 package com.instar.feature.chat.entity;
 
-import com.instar.feature.user.User;
+import com.instar.feature.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.UUID;
+
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@Table(name = "chat_users")
-@IdClass(ChatUserId.class)
+@Table(name = "chat_users", uniqueConstraints = @UniqueConstraint(columnNames = {"chat_id", "user_id"}))
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor @Builder
 public class ChatUser {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
+
     @ManyToOne
     @JoinColumn(name = "chat_id", nullable = false)
     private Chat chat;
 
-    @Id
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @Column(name = "is_admin", nullable = false)
-    private Boolean isAdmin = false;
+    private boolean isAdmin;
 }

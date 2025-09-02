@@ -1,37 +1,35 @@
 package com.instar.common.util;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.instar.common.exception.BusinessException;
+import com.instar.common.exception.errorcode.AuthError;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import java.security.Key;
 import java.util.Date;
+import java.util.Set;
+import java.util.UUID;
 
 @Component
 public class JwtUtil {
     @Value("${jwt.secret}")
     private String SECRET;
     private Key key;
-//    private final long REFRESH_EXPIRATION = 604800000; // 7 ngày
-    private final long EXPIRATION = 604800000; // 1 giờ = 3600000
-    //khởi tạo bổ sung sau khi spring khởi tạo bean và inject denpen
-    // đảm bảo secret đã được inject tránh null
+    private final long EXPIRATION = 604800000;
     @PostConstruct
     public void init() {
-        key = Keys.hmacShaKeyFor(SECRET.getBytes()); //HMAC phương pháp xác thực dữ liệu
+        key = Keys.hmacShaKeyFor(SECRET.getBytes());
     }
 
-    public String createToken(String username, String userId, String role) {
+    public String createToken(String username, UUID userId, Set<String> roles) {
         return Jwts.builder()
-                .setSubject(userId)
+                .setSubject(userId.toString())
                 .setIssuer("instar")
                 .claim("username", username)
-                .claim("role", role)
+                .claim("roles", roles) // nhiều role
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -39,27 +37,24 @@ public class JwtUtil {
     }
 
 
-//    public String createRefreshToken(String username, String userId, String role) {
-//        return Jwts.builder()
-//                .setSubject(userId)
-//                .claim("username", username)
-//                .claim("role", role)
-//                .setIssuedAt(new Date())
-//                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION))
-//                .signWith(key, SignatureAlgorithm.HS256)
-//                .compact();
-//    }
 
-
-    public boolean validateToken(String token) {
+    public boolean validateOrThrow(String token) {
         try {
             Jwts.parserBuilder()
                     .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token);
             return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
+        } catch (ExpiredJwtException ex) {
+            throw new BusinessException(AuthError.INVALID_TOKEN, "Token đã hết hạn");
+        } catch (UnsupportedJwtException ex) {
+            throw new BusinessException(AuthError.INVALID_TOKEN, "Token không được hỗ trợ");
+        } catch (MalformedJwtException ex) {
+            throw new BusinessException(AuthError.INVALID_TOKEN, "Token sai định dạng");
+        } catch (SignatureException ex) {
+            throw new BusinessException(AuthError.INVALID_TOKEN, "Chữ ký token không hợp lệ");
+        } catch (IllegalArgumentException ex) {
+            throw new BusinessException(AuthError.MISSING_TOKEN);
         }
     }
 
@@ -77,14 +72,14 @@ public class JwtUtil {
         return EXPIRATION;
     }
 
-    // mặc định lấy key sub trong payload
-    public String extractUserId(String token) {
-        return Jwts.parserBuilder()
+    public UUID extractUserId(String token) {
+        String id = Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+        return UUID.fromString(id);
     }
 
     public String extractUsername(String token) {
@@ -96,10 +91,18 @@ public class JwtUtil {
                 .get("username", String.class);
     }
 
-    public String getToken(HttpServletRequest request) {
+    public String getTokenBearer(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
+        }
+
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if ("token".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
         }
         return null;
     }

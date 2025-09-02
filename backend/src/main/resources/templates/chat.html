@@ -2,71 +2,144 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Test Realtime Chat (Instar)</title>
+    <title>Chat Demo</title>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5/dist/css/bootstrap.min.css"/>
 </head>
-<body class="p-4">
-<div class="container">
-    <h3>Test Chat Realtime Instar</h3>
-    <div class="row mb-2">
-        <div class="col">
-            <label>UserId: <input id="userId" class="form-control" value="1"></label>
-        </div>
-        <div class="col">
-            <label>ChatId: <input id="chatId" class="form-control" value="1"></label>
-        </div>
-    </div>
-    <button id="connectBtn" class="btn btn-success mb-2">Kết nối</button>
-    <div id="status"></div>
-    <div id="messages" style="height:300px;overflow:auto;background:#eee;padding:10px;"></div>
-    <div class="row mt-2">
-        <div class="col-9"><input id="messageInput" class="form-control" placeholder="Nhập nội dung..."></div>
-        <div class="col-3"><button id="sendBtn" class="btn btn-primary w-100">Gửi</button></div>
-    </div>
-</div>
+<body>
+<h2>Đăng nhập</h2>
+<input id="username" placeholder="Username">
+<input id="password" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
+<p id="loginInfo"></p>
+
+<hr>
+
+<h2>Chat cá nhân</h2>
+<input id="receiverId" placeholder="Receiver UUID">
+<input id="privateMessage" placeholder="Nội dung...">
+<button onclick="sendPrivate()">Gửi</button>
+
+<h2>Chat nhóm</h2>
+<input id="groupId" placeholder="Group UUID">
+<input id="groupMessage" placeholder="Nội dung...">
+<button onclick="sendGroup()">Gửi</button>
+
+<hr>
+
+<h3>Tin nhắn nhận được:</h3>
+<div id="messages" style="border:1px solid #ccc; padding:10px; height:300px; overflow:auto;"></div>
 
 <script>
     let stompClient = null;
-    let connected = false;
+    let currentUserId = null;
 
-    document.getElementById('connectBtn').onclick = function () {
-        let userId = document.getElementById('userId').value;
-        let chatId = document.getElementById('chatId').value;
-        let socket = new SockJS('http://localhost:8080/ws');
-        stompClient = Stomp.over(socket);
-        stompClient.connect({}, function () {
-            connected = true;
-            document.getElementById('status').innerText = 'Đã kết nối';
-            let topic = '/topic/chat/' + chatId + '/user/' + userId;
-            stompClient.subscribe(topic, function (msg) {
-                let body = JSON.parse(msg.body);
-                let messagesDiv = document.getElementById('messages');
-                messagesDiv.innerHTML += `<div><b>${body.senderId}:</b> ${body.content} <small>${body.createdAt}</small></div>`;
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            });
-        });
-    };
-
-    document.getElementById('sendBtn').onclick = function () {
-        if (!connected) {
-            alert('Chưa kết nối');
-            return;
+    // --- util ---
+    function generateUUID() {
+        return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+        );
+    }
+    function getOrCreateDeviceId() {
+        let id = localStorage.getItem("deviceId");
+        if (!id) {
+            id = generateUUID();
+            localStorage.setItem("deviceId", id);
         }
-        let userId = parseInt(document.getElementById('userId').value);
-        let chatId = parseInt(document.getElementById('chatId').value);
-        let content = document.getElementById('messageInput').value;
-        if (!content) return;
+        return id;
+    }
+    function detectDeviceName() {
+        const ua = navigator.userAgent;
+        if (ua.includes("Windows")) return "Web - Windows";
+        if (ua.includes("Mac")) return "Web - MacOS";
+        if (ua.includes("Android")) return "Web - Android";
+        if (ua.includes("iPhone") || ua.includes("iPad")) return "Web - iOS";
+        return "Web - Unknown";
+    }
 
-        let msg = {
-            senderId: userId,
-            chatId: chatId,
+    let pushToken = "demo-push-token";
+
+    async function login() {
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const deviceId = getOrCreateDeviceId();
+        const deviceName = detectDeviceName();
+
+        const payload = {username, password, deviceId, deviceName, pushToken};
+
+        const res = await fetch("http://localhost:8080/api/auth/login", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(payload),
+            credentials: "include"
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            currentUserId = data.user.id;
+            localStorage.setItem("userId", currentUserId);
+            document.getElementById("loginInfo").innerText =
+                "Đăng nhập thành công, userId = " + currentUserId;
+            connectWebSocket();
+        } else {
+            alert("Login thất bại");
+        }
+    }
+
+    function connectWebSocket() {
+        let socket = new SockJS("http://localhost:8080/ws-chat");
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, async function(frame) {
+            console.log("Connected: " + frame);
+
+            // subscribe tin nhắn riêng
+            stompClient.subscribe("/user/queue/messages", function(message) {
+                appendMsg("Private: " + message.body);
+            });
+
+            // gọi API lấy danh sách các chat mà user hiện tại tham gia
+            const res = await fetch("http://localhost:8080/api/chats/my", {credentials: "include"});
+            if (res.ok) {
+                const chats = await res.json();
+                chats.forEach(chat => {
+                    if (chat.group) {
+                        stompClient.subscribe("/topic/" + chat.id, function(message) {
+                            appendMsg("Group[" + chat.chatName + "]: " + message.body);
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    function sendPrivate() {
+        const receiverId = document.getElementById("receiverId").value;
+        const content = document.getElementById("privateMessage").value;
+
+        stompClient.send("/app/chat.private", {}, JSON.stringify({
+            senderId: currentUserId,
+            receiverId: receiverId,
             content: content
-        };
-        stompClient.send("/app/chat.send", {}, JSON.stringify(msg));
-        document.getElementById('messageInput').value = '';
-    };
+        }));
+    }
+
+    function sendGroup() {
+        const groupId = document.getElementById("groupId").value;
+        const content = document.getElementById("groupMessage").value;
+
+        stompClient.send("/app/chat.group", {}, JSON.stringify({
+            senderId: currentUserId,
+            chatId: groupId,
+            content: content
+        }));
+    }
+
+    function appendMsg(text) {
+        const div = document.getElementById("messages");
+        div.innerHTML += "<p>" + text + "</p>";
+        div.scrollTop = div.scrollHeight;
+    }
 </script>
 </body>
 </html>

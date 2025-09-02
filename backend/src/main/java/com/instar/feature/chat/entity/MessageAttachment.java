@@ -1,29 +1,26 @@
 package com.instar.feature.chat.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.UUID;
 
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Table(name = "message_attachments")
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor @Builder
 public class MessageAttachment {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @ManyToOne
     @JoinColumn(name = "message_id", nullable = false)
     private Message message;
 
-    @Column(name = "file_url", length = 255, nullable = false)
+    @Column(name = "file_url", nullable = false)
     private String fileUrl;
 
-    @Column(name = "file_type", length = 50, nullable = false)
-    private String fileType; // 'image', 'video', 'pdf', 'other'
+    @Column(name = "file_type", length = 50)
+    private String fileType;
 }

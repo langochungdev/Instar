@@ -1,22 +1,23 @@
 package com.instar.common.util;
-import com.instar.config.security.CustomUserDetails;
-import com.instar.feature.user.User;
-import com.instar.feature.user.UserRepository;
+import com.instar.infrastructure.security.CustomUserDetails;
+import com.instar.feature.user.entity.User;
+import com.instar.feature.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
 public class CurrentUserUtil {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    public static CustomUserDetails getCurrentUser() {
+    public CustomUserDetails getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) return null;
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
         Object principal = authentication.getPrincipal();
         if (principal instanceof CustomUserDetails) {
             return (CustomUserDetails) principal;
@@ -24,20 +25,16 @@ public class CurrentUserUtil {
         return null;
     }
 
-    public static Integer getCurrentUserId() {
+    public UUID getCurrentUserId() {
         CustomUserDetails user = getCurrentUser();
+        System.out.println(user.getId());
         return user != null ? user.getId() : null;
     }
 
-    public static boolean isAdmin() {
-        CustomUserDetails user = getCurrentUser();
-        if (user == null) return false;
-        return user.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ADMIN"));
-    }
-
     public User getUser() {
-        Integer userId = getCurrentUserId();
-        return userId != null ? userRepository.findById(userId).orElse(null) : null;
+        UUID userId = getCurrentUserId();
+        return userId != null
+                ? userRepository.findByIdWithRoles(userId).orElse(null)
+                : null;
     }
 }

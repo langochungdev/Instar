@@ -1,0 +1,51 @@
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <property name="LOG_DIR" value="${LOG_DIR:-logs}"/>
+
+    <!-- Console: chỉ WARN+ -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level) %cyan(%logger{36}) - %msg%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+    </appender>
+
+    <!-- APP log: INFO+ -->
+    <appender name="APP" class="ch.qos.logback.core.FileAppender">
+        <file>${LOG_DIR}/app.log</file>
+        <append>false</append>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+    </appender>
+
+    <!-- Root logger -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="APP"/>
+    </root>
+
+    <!-- Auth -->
+    <appender name="AUTH" class="ch.qos.logback.core.FileAppender">
+        <file>${LOG_DIR}/auth.log</file>
+        <append>false</append>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+    <logger name="com.instar.feature.auth" level="DEBUG" additivity="false">
+        <appender-ref ref="AUTH"/>
+    </logger>
+
+    <!-- HTTP -->
+    <appender name="HTTP" class="ch.qos.logback.core.FileAppender">
+        <file>${LOG_DIR}/http.log</file>
+        <append>false</append>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+    </appender>
+    <logger name="com.instar.infrastructure.interceptor" level="DEBUG" additivity="false">
+        <appender-ref ref="HTTP"/>
+    </logger>
+</configuration>

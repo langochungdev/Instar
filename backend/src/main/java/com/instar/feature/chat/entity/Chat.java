@@ -1,38 +1,40 @@
 package com.instar.feature.chat.entity;
 
-import com.instar.feature.user.User;
+import com.instar.feature.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
+
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@Table(name = "chats")
+@Table(name = "chats", schema = "dbo")
+@Getter @Setter
+@NoArgsConstructor @AllArgsConstructor @Builder
 public class Chat {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(name = "chat_name", length = 100)
     private String chatName;
 
     @Column(name = "is_group", nullable = false)
-    private Boolean isGroup = false;
+    private boolean isGroup;
 
-    @ManyToOne
-    @JoinColumn(name = "created_by", nullable = false)
-    private User createdBy;
-
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "datetime2 default getdate()")
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "chat")
+    @ManyToOne
+    @JoinColumn(name = "created_by")
+    private User createdBy;
+
+    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ChatUser> chatUsers;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 }

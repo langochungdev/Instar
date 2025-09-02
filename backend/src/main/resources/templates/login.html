@@ -2,61 +2,146 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Test JWT Auth</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
-        .block { margin-bottom: 32px; }
-        label { display: block; margin-top: 12px; }
-        input[type="text"] { width: 400px; }
-        button.copy { margin-left: 6px; }
-    </style>
+    <title>Test Auth API</title>
 </head>
 <body>
-<div class="block">
-    <button onclick="login('admin', '123', 'a')">Đăng nhập ADMIN</button>
-    <label>AccessToken:
-        <input id="accessToken-a" type="text" readonly>
-        <button class="copy" onclick="copyToken('accessToken-a')">Copy</button>
-    </label>
-<!--    <label>RefreshToken:-->
-<!--        <input id="refreshToken-a" type="text" readonly>-->
-<!--        <button class="copy" onclick="copyToken('refreshToken-a')">Copy</button>-->
-<!--    </label>-->
-</div>
-<div class="block">
-    <button onclick="login('user', '123', 'b')">Đăng nhập USER</button>
-    <label>AccessToken:
-        <input id="accessToken-b" type="text" readonly>
-        <button class="copy" onclick="copyToken('accessToken-b')">Copy</button>
-    </label>
-<!--    <label>RefreshToken:-->
-<!--        <input id="refreshToken-b" type="text" readonly>-->
-<!--        <button class="copy" onclick="copyToken('refreshToken-b')">Copy</button>-->
-<!--    </label>-->
-</div>
+<h2>Test Auth API</h2>
+
+<h3>Login Form</h3>
+<form id="loginForm" onsubmit="loginUser(event)">
+    <input type="text" id="loginUsername" placeholder="Username" value="admin" required><br>
+    <input type="password" id="loginPassword" placeholder="Password" value="123" required><br>
+    <button type="submit">Login</button>
+</form>
+
+<button onclick="logout()">Logout</button>
+<button onclick="getMe()">/me</button>
+
+<h3>Register Form</h3>
+<form id="registerForm" onsubmit="registerUser(event)">
+    <input type="text" id="regUsername" placeholder="Username" required><br>
+    <input type="email" id="regEmail" placeholder="Email" required><br>
+    <input type="password" id="regPassword" placeholder="Password" required><br>
+    <input type="text" id="regFullName" placeholder="Full Name"><br>
+    <button type="submit">Register</button>
+</form>
+
+<div id="info" style="margin-top:20px; border:1px solid #ccc; padding:10px;"></div>
+
 <script>
-    function login(username, password, key) {
-        fetch('http://localhost:8080/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        })
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('accessToken-' + key).value = data.accessToken || '';
-                // document.getElementById('refreshToken-' + key).value = data.refreshToken || '';
-            })
-            .catch(err => {
-                document.getElementById('accessToken-' + key).value = 'Đăng nhập lỗi!';
-                // document.getElementById('refreshToken-' + key).value = '';
-            });
+    // --- util ---
+    function generateUUID() {
+        return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+            (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+        );
+    }
+    function getOrCreateDeviceId() {
+        let id = localStorage.getItem("deviceId");
+        if (!id) {
+            id = generateUUID();
+            localStorage.setItem("deviceId", id);
+        }
+        return id;
+    }
+    function detectDeviceName() {
+        const ua = navigator.userAgent;
+        if (ua.includes("Windows")) return "Web - Windows";
+        if (ua.includes("Mac")) return "Web - MacOS";
+        if (ua.includes("Android")) return "Web - Android";
+        if (ua.includes("iPhone") || ua.includes("iPad")) return "Web - iOS";
+        return "Web - Unknown";
     }
 
-    function copyToken(inputId) {
-        const input = document.getElementById(inputId);
-        input.select();
-        input.setSelectionRange(0, 99999);
-        document.execCommand('copy');
+    let pushToken = "demo-push-token";
+
+    async function loginUser(event) {
+        event.preventDefault();
+        const username = document.getElementById("loginUsername").value;
+        const password = document.getElementById("loginPassword").value;
+        const deviceId = getOrCreateDeviceId();
+        const deviceName = detectDeviceName();
+
+        const payload = {username, password, deviceId, deviceName, pushToken};
+
+        const res = await fetch("http://localhost:8080/api/auth/login", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(payload),
+            credentials: "include"
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            document.getElementById("info").innerHTML = `
+        <h4>Đăng nhập thành công</h4>
+        <p><b>ID:</b> ${data.user.id}</p>
+        <p><b>Username:</b> ${data.user.username}</p>
+        <p><b>Email:</b> ${data.user.email}</p>
+        <p><b>Full name:</b> ${data.user.fullName}</p>
+        <p><b>Roles:</b> ${data.user.roles ? data.user.roles.join(", ") : ""}</p>
+        <p><b>Expires in:</b> ${data.expiresIn}</p>
+        <p><b>DeviceId:</b> ${deviceId}</p>
+        <p><b>DeviceName:</b> ${deviceName}</p>
+        <p><b>PushToken:</b> ${pushToken}</p>
+      `;
+        } else {
+            document.getElementById("info").innerHTML = "<p>Đăng nhập thất bại</p>";
+        }
+    }
+
+    async function registerUser(event) {
+        event.preventDefault();
+        const user = {
+            username: document.getElementById("regUsername").value,
+            password: document.getElementById("regPassword").value,
+            email: document.getElementById("regEmail").value,
+            fullName: document.getElementById("regFullName").value
+        };
+        const res = await fetch("http://localhost:8080/api/auth/register", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(user)
+        });
+        if (res.ok) {
+            const data = await res.json();
+            alert("Đăng ký thành công: " + data.username);
+        } else {
+            alert("Đăng ký thất bại");
+        }
+    }
+
+    async function logout() {
+        const deviceId = getOrCreateDeviceId();
+        const res = await fetch("http://localhost:8080/api/auth/logout", {
+            method: "POST",
+            headers: {"X-Device-Id": deviceId},
+            credentials: "include"
+        });
+        if (res.ok) {
+            document.getElementById("info").innerHTML = "<p>Đã logout</p>";
+        } else {
+            alert("Logout thất bại");
+        }
+    }
+
+    async function getMe() {
+        const res = await fetch("http://localhost:8080/api/users/me", {
+            method: "GET",
+            credentials: "include"
+        });
+        if (res.ok) {
+            const data = await res.json();
+            document.getElementById("info").innerHTML = `
+        <h4>Current User (/me)</h4>
+        <p><b>ID:</b> ${data.id}</p>
+        <p><b>Username:</b> ${data.username}</p>
+        <p><b>Email:</b> ${data.email}</p>
+        <p><b>Full name:</b> ${data.fullName}</p>
+        <p><b>Roles:</b> ${data.roles ? data.roles.join(", ") : ""}</p>
+      `;
+        } else {
+            document.getElementById("info").innerHTML = "<p>Không lấy được user hiện tại</p>";
+        }
     }
 </script>
 </body>

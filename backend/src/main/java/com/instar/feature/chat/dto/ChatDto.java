@@ -1,16 +1,23 @@
 package com.instar.feature.chat.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ChatDto {
-    private Integer id;
+    private UUID id;
     private String chatName;
-    private Boolean isGroup;
-    private Integer createdById;
+    private boolean isGroup;
     private LocalDateTime createdAt;
-    private List<Integer> memberIds; // danh sách user id trong nhóm
+    private UUID createdById;
+    private List<UUID> memberIds;
 }

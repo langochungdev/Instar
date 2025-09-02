@@ -1,12 +1,9 @@
 package com.instar.feature.chat.repository;
 
 import com.instar.feature.chat.entity.ChatUser;
-import com.instar.feature.chat.entity.ChatUserId;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+import java.util.UUID;
 
-public interface ChatUserRepository extends JpaRepository<ChatUser, ChatUserId> {
-    List<ChatUser> findByUserId(Integer userId);
-    List<ChatUser> findByChatId(Integer chatId);
+public interface ChatUserRepository extends JpaRepository<ChatUser, UUID> {
 }
