@@ -49,7 +49,6 @@ public class User {
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private Set<UserRole> userRoles;
 
-
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();

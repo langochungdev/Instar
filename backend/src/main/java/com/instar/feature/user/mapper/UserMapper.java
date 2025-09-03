@@ -31,7 +31,7 @@ public class UserMapper {
                 .build();
     }
 
-    public User toEntity(UserDto dto, Set<Role> roles) {
+    public User toEntity(UserDto dto) {
         User user = User.builder()
                 .id(dto.getId())
                 .username(dto.getUsername())
@@ -45,11 +45,11 @@ public class UserMapper {
                 .isVerified(dto.getIsVerified())
                 .build();
 
-        if (roles != null && !roles.isEmpty()) {
-            Set<UserRole> userRoles = roles.stream()
-                    .map(role -> UserRole.builder()
+        if (dto.getRoles() != null && !dto.getRoles().isEmpty()) {
+            Set<UserRole> userRoles = dto.getRoles().stream()
+                    .map(roleName -> UserRole.builder()
                             .user(user)
-                            .role(role)
+                            .role(Role.builder().name(roleName).build())
                             .build())
                     .collect(Collectors.toSet());
             user.setUserRoles(userRoles);
@@ -57,5 +57,35 @@ public class UserMapper {
 
         return user;
     }
+
+    public void updateEntityFromDto(UserDto dto, User user) {
+        if (dto.getFullName() != null) {
+            user.setFullName(dto.getFullName());
+        }
+        if (dto.getAvatarUrl() != null) {
+            user.setAvatarUrl(dto.getAvatarUrl());
+        }
+        if (dto.getBio() != null) {
+            user.setBio(dto.getBio());
+        }
+        if (dto.getIsActive() != null) {
+            user.setIsActive(dto.getIsActive());
+        }
+        if (dto.getIsVerified() != null) {
+            user.setIsVerified(dto.getIsVerified());
+        }
+
+        if (dto.getRoles() != null && !dto.getRoles().isEmpty()) {
+            Set<UserRole> userRoles = dto.getRoles().stream()
+                    .map(roleName -> UserRole.builder()
+                            .user(user)
+                            .role(Role.builder().name(roleName).build())
+                            .build())
+                    .collect(Collectors.toSet());
+            user.setUserRoles(userRoles);
+        }
+    }
+
+
 
 }

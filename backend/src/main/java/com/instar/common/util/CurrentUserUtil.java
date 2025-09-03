@@ -13,7 +13,7 @@ import java.util.UUID;
 public class CurrentUserUtil {
     private final UserRepository userRepository;
 
-    public CustomUserDetails getCurrentUser() {
+    public CustomUserDetails getUserDetails() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             return null;
@@ -26,7 +26,7 @@ public class CurrentUserUtil {
     }
 
     public UUID getCurrentUserId() {
-        CustomUserDetails user = getCurrentUser();
+        CustomUserDetails user = getUserDetails();
         System.out.println(user.getId());
         return user != null ? user.getId() : null;
     }
@@ -34,7 +34,7 @@ public class CurrentUserUtil {
     public User getUser() {
         UUID userId = getCurrentUserId();
         return userId != null
-                ? userRepository.findByIdWithRoles(userId).orElse(null)
+                ? userRepository.findById(userId).orElse(null)
                 : null;
     }
 }
