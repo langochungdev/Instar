@@ -16,6 +16,7 @@
 
 <button onclick="logout()">Logout</button>
 <button onclick="getMe()">/me</button>
+<button onclick="refreshToken()">Refresh Token</button>
 
 <h3>Register Form</h3>
 <form id="registerForm" onsubmit="registerUser(event)">
@@ -29,6 +30,9 @@
 <div id="info" style="margin-top:20px; border:1px solid #ccc; padding:10px;"></div>
 
 <script>
+    // giữ access token ở client
+    let accessToken = null;
+
     // --- util ---
     function generateUUID() {
         return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
@@ -72,18 +76,17 @@
 
         if (res.ok) {
             const data = await res.json();
+            accessToken = data.token; // lưu access token
             document.getElementById("info").innerHTML = `
-        <h4>Đăng nhập thành công</h4>
-        <p><b>ID:</b> ${data.user.id}</p>
-        <p><b>Username:</b> ${data.user.username}</p>
-        <p><b>Email:</b> ${data.user.email}</p>
-        <p><b>Full name:</b> ${data.user.fullName}</p>
-        <p><b>Roles:</b> ${data.user.roles ? data.user.roles.join(", ") : ""}</p>
-        <p><b>Expires in:</b> ${data.expiresIn}</p>
-        <p><b>DeviceId:</b> ${deviceId}</p>
-        <p><b>DeviceName:</b> ${deviceName}</p>
-        <p><b>PushToken:</b> ${pushToken}</p>
-      `;
+                <h4>Đăng nhập thành công</h4>
+                <p><b>ID:</b> ${data.user.id}</p>
+                <p><b>Username:</b> ${data.user.username}</p>
+                <p><b>Email:</b> ${data.user.email}</p>
+                <p><b>Full name:</b> ${data.user.fullName}</p>
+                <p><b>Roles:</b> ${data.user.roles ? data.user.roles.join(", ") : ""}</p>
+                <p><b>Expires in:</b> ${data.expiresIn}</p>
+                <p><b>Access Token:</b> ${data.token}</p>
+            `;
         } else {
             document.getElementById("info").innerHTML = "<p>Đăng nhập thất bại</p>";
         }
@@ -118,6 +121,7 @@
             credentials: "include"
         });
         if (res.ok) {
+            accessToken = null; // clear token
             document.getElementById("info").innerHTML = "<p>Đã logout</p>";
         } else {
             alert("Logout thất bại");
@@ -125,22 +129,50 @@
     }
 
     async function getMe() {
+        if (!accessToken) {
+            document.getElementById("info").innerHTML = "<p>Chưa có access token</p>";
+            return;
+        }
+
         const res = await fetch("http://localhost:8080/api/me", {
             method: "GET",
+            headers: {
+                "Authorization": "Bearer " + accessToken
+            }
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            document.getElementById("info").innerHTML = `
+                <h4>Current User (/me)</h4>
+                <p><b>ID:</b> ${data.id}</p>
+                <p><b>Username:</b> ${data.username}</p>
+                <p><b>Email:</b> ${data.email}</p>
+                <p><b>Full name:</b> ${data.fullName}</p>
+                <p><b>Roles:</b> ${data.roles ? data.roles.join(", ") : ""}</p>
+            `;
+        } else {
+            document.getElementById("info").innerHTML = "<p>Không lấy được user hiện tại</p>";
+        }
+    }
+
+    async function refreshToken() {
+        const res = await fetch("http://localhost:8080/api/auth/refresh", {
+            method: "POST",
             credentials: "include"
         });
         if (res.ok) {
             const data = await res.json();
+            accessToken = data.token; // update access token mới
             document.getElementById("info").innerHTML = `
-        <h4>Current User (/me)</h4>
-        <p><b>ID:</b> ${data.id}</p>
-        <p><b>Username:</b> ${data.username}</p>
-        <p><b>Email:</b> ${data.email}</p>
-        <p><b>Full name:</b> ${data.fullName}</p>
-        <p><b>Roles:</b> ${data.roles ? data.roles.join(", ") : ""}</p>
-      `;
+                <h4>Refresh Token thành công</h4>
+                <p><b>Access Token:</b> ${data.token}</p>
+                <p><b>Expires in:</b> ${data.expiresIn}</p>
+                <p><b>Refresh Expires in:</b> ${data.refreshExpiresIn}</p>
+                <p><b>User:</b> ${data.user.username}</p>
+            `;
         } else {
-            document.getElementById("info").innerHTML = "<p>Không lấy được user hiện tại</p>";
+            document.getElementById("info").innerHTML = "<p>Refresh Token thất bại</p>";
         }
     }
 </script>

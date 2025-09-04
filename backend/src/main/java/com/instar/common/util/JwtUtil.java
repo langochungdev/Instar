@@ -18,7 +18,8 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String SECRET;
     private Key key;
-    private final long EXPIRATION = 604800000;
+    private final long EXPIRATION = 3600000; //1h
+    private final long REFRESH_EXPIRATION = 2592000000L; // 30 ngày
     @PostConstruct
     public void init() {
         key = Keys.hmacShaKeyFor(SECRET.getBytes());
@@ -36,7 +37,15 @@ public class JwtUtil {
                 .compact();
     }
 
-
+    public String createRefreshToken(UUID userId) {
+        return Jwts.builder()
+                .setSubject(userId.toString())
+                .setIssuer("instar")
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_EXPIRATION))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
 
     public boolean validateOrThrow(String token) {
         try {
@@ -58,6 +67,20 @@ public class JwtUtil {
         }
     }
 
+    public boolean validateRefreshOrThrow(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token);
+            return true;
+        } catch (ExpiredJwtException ex) {
+            throw new BusinessException(AuthError.INVALID_TOKEN, "Refresh token đã hết hạn");
+        } catch (Exception ex) {
+            throw new BusinessException(AuthError.INVALID_TOKEN, "Refresh token không hợp lệ");
+        }
+    }
+
     public long getExpirationFromToken(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
@@ -68,10 +91,13 @@ public class JwtUtil {
                 .getTime();
     }
 
-    public long getExpiration() {
+    public long getAccessExpiration() {
         return EXPIRATION;
     }
 
+    public long getRefreshExpiration() {
+        return REFRESH_EXPIRATION;
+    }
     public UUID extractUserId(String token) {
         String id = Jwts.parserBuilder()
                 .setSigningKey(key)

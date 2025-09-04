@@ -29,7 +29,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     private static final Set<String> EXCLUDED_PATHS = Set.of(
             "/api/auth/logout",
             "/api/auth/login",
-            "/api/auth/register"
+            "/api/auth/register",
+            "/api/auth/refresh"
     );
     private final HandlerExceptionResolver resolver;
     @Autowired
@@ -56,12 +57,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 return;
             }
 
-            String token = jwtUtil.getTokenFromCookie(request);
-            jwtUtil.validateOrThrow(token);
+//            String token = jwtUtil.getTokenFromCookie(request);
+//            jwtUtil.validateOrThrow(token);
 
-            if (tokenBlacklistService.isTokenBlacklisted(token)) {
-                throw new BusinessException(AuthError.BLACKLISTED_TOKEN);
-            }
+//            if (tokenBlacklistService.isTokenBlacklisted(token)) {
+//                throw new BusinessException(AuthError.BLACKLISTED_TOKEN);
+//            }
+
+            String token = jwtUtil.getTokenBearer(request);
+            jwtUtil.validateOrThrow(token);
 
             UUID userId = jwtUtil.extractUserId(token);
             if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -78,8 +82,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                 .map(ur -> new SimpleGrantedAuthority("ROLE_" + ur.getRole().getName()))
                                 .toList()
                 );
-
-
 
 
                 UsernamePasswordAuthenticationToken authenticationToken =
