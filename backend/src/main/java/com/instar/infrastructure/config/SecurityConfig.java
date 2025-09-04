@@ -3,6 +3,7 @@ import com.instar.common.filter.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -27,18 +28,28 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthenticationFilter;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Order(1)
+    public SecurityFilterChain wsSecurity(HttpSecurity http) throws Exception {
         http
-                .cors(Customizer.withDefaults())  // có mới chạy cors
+                .securityMatcher("/ws-chat/**", "/ws/**", "/app/**", "/topic/**", "/queue/**")
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        return http.build();
+    }
+
+    @Bean
+    @Order(2)
+    public SecurityFilterChain apiSecurity(HttpSecurity http) throws Exception {
+        http
+                .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
-                        .requestMatchers("/ws/**", "/app/**", "/topic/**", "/queue/**").permitAll()
                         .anyRequest().authenticated()
-//                                .anyRequest().permitAll()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
@@ -55,7 +66,6 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", config);
         return source;
     }
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {

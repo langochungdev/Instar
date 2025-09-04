@@ -122,14 +122,6 @@ public class JwtUtil {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
-
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("token".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
         return null;
     }
 

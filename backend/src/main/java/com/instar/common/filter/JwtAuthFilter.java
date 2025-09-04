@@ -52,17 +52,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             System.out.println(request.getRequestURI());
 
             String path = request.getRequestURI();
-            if (EXCLUDED_PATHS.stream().anyMatch(path::equalsIgnoreCase)) {
+            if (EXCLUDED_PATHS.contains(path) || path.startsWith("/ws-chat")) {
                 filterChain.doFilter(request, response);
                 return;
             }
-
-//            String token = jwtUtil.getTokenFromCookie(request);
-//            jwtUtil.validateOrThrow(token);
-
-//            if (tokenBlacklistService.isTokenBlacklisted(token)) {
-//                throw new BusinessException(AuthError.BLACKLISTED_TOKEN);
-//            }
 
             String token = jwtUtil.getTokenBearer(request);
             jwtUtil.validateOrThrow(token);

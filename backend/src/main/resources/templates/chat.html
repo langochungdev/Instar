@@ -7,23 +7,34 @@
     <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 </head>
 <body>
-<h2>Đăng nhập</h2>
-<input id="username" placeholder="Username">
-<input id="password" type="password" placeholder="Password">
-<button onclick="login()">Login</button>
+<h2>Chat Demo với Auth + Device</h2>
+
+<!-- Form Login -->
+<h3>Login</h3>
+<form id="loginForm" onsubmit="loginUser(event)">
+    <input value="admin" type="text" id="username" placeholder="Username" required><br>
+    <input value="123" type="password" id="password" placeholder="Password" required><br>
+    <button type="submit">Login</button>
+</form>
 <p id="loginInfo"></p>
 
 <hr>
 
-<h2>Chat cá nhân</h2>
-<input id="receiverId" placeholder="Receiver UUID">
-<input id="privateMessage" placeholder="Nội dung...">
-<button onclick="sendPrivate()">Gửi</button>
+<!-- Chat cá nhân -->
+<h3>Chat cá nhân</h3>
+<form id="privateForm" onsubmit="sendPrivate(event)">
+    <input id="receiverId" placeholder="Receiver UUID" required><br>
+    <input id="privateMessage" placeholder="Nội dung..." required><br>
+    <button type="submit">Gửi</button>
+</form>
 
-<h2>Chat nhóm</h2>
-<input id="groupId" placeholder="Group UUID">
-<input id="groupMessage" placeholder="Nội dung...">
-<button onclick="sendGroup()">Gửi</button>
+<!-- Chat nhóm -->
+<h3>Chat nhóm</h3>
+<form id="groupForm" onsubmit="sendGroup(event)">
+    <input id="groupId" placeholder="Group UUID" required><br>
+    <input id="groupMessage" placeholder="Nội dung..." required><br>
+    <button type="submit">Gửi</button>
+</form>
 
 <hr>
 
@@ -33,6 +44,7 @@
 <script>
     let stompClient = null;
     let currentUserId = null;
+    let accessToken = null;
 
     // --- util ---
     function generateUUID() {
@@ -59,7 +71,9 @@
 
     let pushToken = "demo-push-token";
 
-    async function login() {
+    // --- Login ---
+    async function loginUser(event) {
+        event.preventDefault();
         const username = document.getElementById("username").value;
         const password = document.getElementById("password").value;
         const deviceId = getOrCreateDeviceId();
@@ -70,36 +84,51 @@
         const res = await fetch("http://localhost:8080/api/auth/login", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(payload),
-            credentials: "include"
+            body: JSON.stringify(payload)
         });
 
         if (res.ok) {
             const data = await res.json();
             currentUserId = data.user.id;
-            localStorage.setItem("userId", currentUserId);
-            document.getElementById("loginInfo").innerText =
-                "Đăng nhập thành công, userId = " + currentUserId;
+            accessToken = data.token;
+
+            document.getElementById("loginInfo").innerHTML = `
+                <h4>Đăng nhập thành công</h4>
+                <p><b>ID:</b> ${data.user.id}</p>
+                <p><b>Username:</b> ${data.user.username}</p>
+                <p><b>Email:</b> ${data.user.email}</p>
+                <p><b>Full name:</b> ${data.user.fullName}</p>
+                <p><b>Access Token:</b> ${data.token}</p>
+                <p><b>Device ID:</b> ${deviceId}</p>
+                <p><b>Device Name:</b> ${deviceName}</p>
+                <p><b>Push Token:</b> ${pushToken}</p>
+            `;
+
             connectWebSocket();
         } else {
-            alert("Login thất bại");
+            document.getElementById("loginInfo").innerHTML = "<p>Đăng nhập thất bại</p>";
         }
     }
 
+    // --- Connect WS ---
     function connectWebSocket() {
-        let socket = new SockJS("http://localhost:8080/ws-chat");
+        let socket = new SockJS("http://localhost:8080/ws-chat?token=" + accessToken);
         stompClient = Stomp.over(socket);
 
         stompClient.connect({}, async function(frame) {
             console.log("Connected: " + frame);
 
-            // subscribe tin nhắn riêng
             stompClient.subscribe("/user/queue/messages", function(message) {
                 appendMsg("Private: " + message.body);
             });
 
-            // gọi API lấy danh sách các chat mà user hiện tại tham gia
-            const res = await fetch("http://localhost:8080/api/chats/my", {credentials: "include"});
+            const res = await fetch("http://localhost:8080/api/chats/my", {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + accessToken
+                }
+            });
+
             if (res.ok) {
                 const chats = await res.json();
                 chats.forEach(chat => {
@@ -113,26 +142,32 @@
         });
     }
 
-    function sendPrivate() {
-        const receiverId = document.getElementById("receiverId").value;
-        const content = document.getElementById("privateMessage").value;
-
+    // --- Chat cá nhân ---
+    function sendPrivate(event) {
+        event.preventDefault();
         stompClient.send("/app/chat.private", {}, JSON.stringify({
             senderId: currentUserId,
-            receiverId: receiverId,
-            content: content
+            receiverId: document.getElementById("receiverId").value,
+            content: document.getElementById("privateMessage").value,
+            token: accessToken,
+            deviceId: getOrCreateDeviceId(),
+            pushToken: pushToken
         }));
+        document.getElementById("privateMessage").value = "";
     }
 
-    function sendGroup() {
-        const groupId = document.getElementById("groupId").value;
-        const content = document.getElementById("groupMessage").value;
-
+    // --- Chat nhóm ---
+    function sendGroup(event) {
+        event.preventDefault();
         stompClient.send("/app/chat.group", {}, JSON.stringify({
             senderId: currentUserId,
-            chatId: groupId,
-            content: content
+            chatId: document.getElementById("groupId").value,
+            content: document.getElementById("groupMessage").value,
+            token: accessToken,
+            deviceId: getOrCreateDeviceId(),
+            pushToken: pushToken
         }));
+        document.getElementById("groupMessage").value = "";
     }
 
     function appendMsg(text) {
