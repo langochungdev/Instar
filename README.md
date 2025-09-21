@@ -200,4 +200,3 @@ Project manager notion: https://www.notion.so/Instar-2378407b6502808c8cbed8fe61c
 
 ---
 
-**Bạn chỉ cần thực hiện theo từng bước, mỗi module đều độc lập, có thể phát triển song song. Nếu gặp khó khăn, đọc lại phần API, DB, hoặc hỏi AI này để được hướng dẫn chi tiết từng file, từng chức năng.**
